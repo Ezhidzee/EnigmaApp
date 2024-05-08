@@ -129,7 +129,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/forgot_your_password"
-                android:textColor="@color/green"
+                android:textColor="@color/primary"
                 android:textSize="14sp"
                 android:textStyle="bold" />
 
