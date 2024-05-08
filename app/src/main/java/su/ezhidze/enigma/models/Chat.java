@@ -9,8 +9,11 @@ public class Chat {
 
     private List<Message> messages;
 
+    private List<User> users;
+
     public Chat() {
         messages = new ArrayList<>();
+        users = new ArrayList<>();
     }
 
     public Integer getId() {
@@ -27,5 +30,19 @@ public class Chat {
 
     public void setMessages(List<Message> messages) {
         this.messages = messages;
+    }
+
+    public List<User> getUsers() {
+        return users;
+    }
+
+    public void setUsers(List<User> users) {
+        this.users = users;
+    }
+
+    public Chat(Integer id, List<Message> messages, List<User> users) {
+        this.id = id;
+        this.messages = messages;
+        this.users = users;
     }
 }

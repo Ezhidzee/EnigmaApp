@@ -62,6 +62,6 @@ public class User implements Serializable {
         this.phone = userResponseModel.getPhoneNumber();
         this.image = "";
         this.publicKey = userResponseModel.getPublicKey();
-        this.id = userResponseModel.getPublicKey();
+        this.id = String.valueOf(userResponseModel.getId());
     }
 }

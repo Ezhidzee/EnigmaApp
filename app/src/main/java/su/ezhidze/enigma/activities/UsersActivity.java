@@ -1,20 +1,10 @@
 package su.ezhidze.enigma.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
-
-import su.ezhidze.enigma.adapters.UsersAdapter;
-import su.ezhidze.enigma.databinding.ActivityUsersBinding;
-import su.ezhidze.enigma.listeners.UserListener;
-import su.ezhidze.enigma.models.User;
-import su.ezhidze.enigma.models.UserResponseModel;
-import su.ezhidze.enigma.networks.ApiClient;
-import su.ezhidze.enigma.networks.ApiService;
-import su.ezhidze.enigma.utilities.BaseActivity;
-import su.ezhidze.enigma.utilities.Constants;
-import su.ezhidze.enigma.utilities.PreferenceManager;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,6 +14,18 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import su.ezhidze.enigma.adapters.UsersAdapter;
+import su.ezhidze.enigma.databinding.ActivityUsersBinding;
+import su.ezhidze.enigma.listeners.UserListener;
+import su.ezhidze.enigma.models.Chat;
+import su.ezhidze.enigma.models.User;
+import su.ezhidze.enigma.models.UserResponseModel;
+import su.ezhidze.enigma.networks.ApiClient;
+import su.ezhidze.enigma.networks.ApiService;
+import su.ezhidze.enigma.utilities.BaseActivity;
+import su.ezhidze.enigma.utilities.ChatService;
+import su.ezhidze.enigma.utilities.Constants;
+import su.ezhidze.enigma.utilities.PreferenceManager;
 
 
 public class UsersActivity extends BaseActivity implements UserListener {
@@ -32,7 +34,9 @@ public class UsersActivity extends BaseActivity implements UserListener {
 
     private PreferenceManager preferenceManager;
 
-//    private
+    private ChatService chatService;
+
+    private Chat conversation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +45,8 @@ public class UsersActivity extends BaseActivity implements UserListener {
         setContentView(binding.getRoot());
 
         preferenceManager = new PreferenceManager(this);
+        chatService = new ChatService(preferenceManager);
+        conversation = new Chat();
 
         setListeners();
         getUsers();
@@ -111,10 +117,66 @@ public class UsersActivity extends BaseActivity implements UserListener {
 
     @Override
     public void onUserClicked(User user) {
+        chatService.getChatsFromPrefs();
+        boolean chatExists = false;
+        for (Chat chat : chatService.chats) {
+            for (User i : chat.getUsers()) {
+                if (i.getId().equals(user.getId())) {
+                    chatExists = true;
+                    conversation = chat;
+                }
+            }
+            if (chatExists) break;
+        }
+        if (!chatExists) {
+            Retrofit retrofit = ApiClient.getApiClient();
+            ApiService apiService = retrofit.create(ApiService.class);
+            Call<Chat> chatCreationCall = apiService.addChat();
+            chatCreationCall.enqueue(new Callback<Chat>() {
+                @Override
+                public void onResponse(Call<Chat> call, Response<Chat> response) {
+                    conversation.setId(response.body().getId());
+                    Call<Chat> addUser1Call = apiService.joinUser(conversation.getId(), Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
+                    addUser1Call.enqueue(new Callback<Chat>() {
+                        @Override
+                        public void onResponse(Call<Chat> call, Response<Chat> response) {
+                            Call<Chat> addUser2Call = apiService.joinUser(conversation.getId(), Integer.valueOf(user.getId()));
+                            addUser2Call.enqueue(new Callback<Chat>() {
+                                @Override
+                                public void onResponse(Call<Chat> call, Response<Chat> response) {
+                                    conversation.setUsers(response.body().getUsers());
+                                    chatService.chats.add(conversation);
+                                    chatService.save();
+                                }
+
+                                @Override
+                                public void onFailure(Call<Chat> call, Throwable throwable) {
+                                    showToast(throwable.getMessage());
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onFailure(Call<Chat> call, Throwable throwable) {
+                            showToast(throwable.getMessage());
+                        }
+                    });
+                }
+
+                @Override
+                public void onFailure(Call<Chat> call, Throwable throwable) {
+                    showToast(throwable.getMessage());
+                }
+            });
+        }
 
         Intent intent = new Intent(this, ConversationActivity.class);
         intent.putExtra(Constants.KEY_USER, user);
         startActivity(intent);
         finish();
+    }
+
+    public Context getContext() {
+        return getApplicationContext();
     }
 }

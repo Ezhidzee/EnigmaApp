@@ -119,7 +119,10 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
             public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
                 loading(false);
                 if (response.code() == 200) {
+                    preferenceManager.putString(Constants.KEY_NAME, response.body().values().toArray()[0].toString());
                     preferenceManager.putString(Constants.KEY_TOKEN, response.body().values().toArray()[1].toString());
+                    preferenceManager.putString(Constants.KEY_ID, response.body().values().toArray()[2].toString());
+                    preferenceManager.putString(Constants.KEY_PHONE, response.body().values().toArray()[3].toString());
                     preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
                     loading(false);
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);

@@ -3,21 +3,21 @@ package su.ezhidze.enigma.models;
 
 public class Message {
 
-    private Chat chat;
+    private Integer chatId;
 
     private String messageText;
 
-    public Message(Integer id, Chat chat, String messageText) {
-        this.chat = chat;
+    public Message(Integer chatId, String messageText) {
+        this.chatId = chatId;
         this.messageText = messageText;
     }
 
-    public Chat getChat() {
-        return chat;
+    public Integer getChatId() {
+        return chatId;
     }
 
-    public void setChat(Chat chat) {
-        this.chat = chat;
+    public void setChatId(Integer chatId) {
+        this.chatId = chatId;
     }
 
     public String getMessageText() {
