@@ -23,7 +23,7 @@ import su.ezhidze.enigma.models.UserResponseModel;
 import su.ezhidze.enigma.networks.ApiClient;
 import su.ezhidze.enigma.networks.ApiService;
 import su.ezhidze.enigma.utilities.BaseActivity;
-import su.ezhidze.enigma.utilities.ChatService;
+import su.ezhidze.enigma.utilities.ChatManager;
 import su.ezhidze.enigma.utilities.Constants;
 import su.ezhidze.enigma.utilities.PreferenceManager;
 
@@ -34,7 +34,7 @@ public class UsersActivity extends BaseActivity implements UserListener {
 
     private PreferenceManager preferenceManager;
 
-    private ChatService chatService;
+    private ChatManager chatManager;
 
     private Chat conversation;
 
@@ -45,7 +45,7 @@ public class UsersActivity extends BaseActivity implements UserListener {
         setContentView(binding.getRoot());
 
         preferenceManager = new PreferenceManager(this);
-        chatService = new ChatService(preferenceManager);
+        chatManager = new ChatManager(preferenceManager);
         conversation = new Chat();
 
         setListeners();
@@ -117,9 +117,8 @@ public class UsersActivity extends BaseActivity implements UserListener {
 
     @Override
     public void onUserClicked(User user) {
-        chatService.getChatsFromPrefs();
         boolean chatExists = false;
-        for (Chat chat : chatService.chats) {
+        for (Chat chat : chatManager.getChats()) {
             for (User i : chat.getUsers()) {
                 if (i.getId().equals(user.getId())) {
                     chatExists = true;
@@ -145,8 +144,7 @@ public class UsersActivity extends BaseActivity implements UserListener {
                                 @Override
                                 public void onResponse(Call<Chat> call, Response<Chat> response) {
                                     conversation.setUsers(response.body().getUsers());
-                                    chatService.chats.add(conversation);
-                                    chatService.save();
+                                    chatManager.addChat(conversation);
                                 }
 
                                 @Override
