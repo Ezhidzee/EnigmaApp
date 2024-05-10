@@ -58,8 +58,10 @@ public class UsersActivity extends BaseActivity implements UserListener {
 
     private void getUsers() {
         loading(true);
+
         Retrofit retrofit = ApiClient.getApiClient();
         ApiService apiService = retrofit.create(ApiService.class);
+
         Call<ArrayList<UserResponseModel>> usersListCall = apiService.getUsers();
         usersListCall.enqueue(new Callback<ArrayList<UserResponseModel>>() {
             @Override
@@ -130,15 +132,18 @@ public class UsersActivity extends BaseActivity implements UserListener {
         if (!chatExists) {
             Retrofit retrofit = ApiClient.getApiClient();
             ApiService apiService = retrofit.create(ApiService.class);
+
             Call<Chat> chatCreationCall = apiService.addChat();
             chatCreationCall.enqueue(new Callback<Chat>() {
                 @Override
                 public void onResponse(Call<Chat> call, Response<Chat> response) {
                     conversation.setId(response.body().getId());
+
                     Call<Chat> addUser1Call = apiService.joinUser(conversation.getId(), Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
                     addUser1Call.enqueue(new Callback<Chat>() {
                         @Override
                         public void onResponse(Call<Chat> call, Response<Chat> response) {
+
                             Call<Chat> addUser2Call = apiService.joinUser(conversation.getId(), Integer.valueOf(user.getId()));
                             addUser2Call.enqueue(new Callback<Chat>() {
                                 @Override
