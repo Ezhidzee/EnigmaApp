@@ -4,6 +4,7 @@ import retrofit2.http.PUT;
 import retrofit2.http.Query;
 import su.ezhidze.enigma.models.AuthenticationModel;
 import su.ezhidze.enigma.models.Chat;
+import su.ezhidze.enigma.models.ChatModel;
 import su.ezhidze.enigma.models.UserRegistrationModel;
 import su.ezhidze.enigma.models.UserResponseModel;
 
@@ -37,4 +38,7 @@ public interface ApiService {
 
     @PUT("/joinUser")
     Call<Chat> joinUser(@Query("chatId") Integer chatId, @Query("userId") Integer userId);
+
+    @GET("enigma/getUserChats")
+    Call<ArrayList<ChatModel>> getUserChats(@Query("userId") Integer userId);
 }

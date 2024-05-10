@@ -17,6 +17,13 @@ public class UserResponseModel {
         this.publicKey = publicKey;
     }
 
+    public UserResponseModel(final User user) {
+        id = Integer.valueOf(user.getId());
+        nickname = user.getName();
+        phoneNumber = user.getPhone();
+        publicKey = user.getPublicKey();
+    }
+
     public Integer getId() {
         return id;
     }

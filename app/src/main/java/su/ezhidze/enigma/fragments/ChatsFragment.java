@@ -47,15 +47,11 @@ public class ChatsFragment extends Fragment implements RecentConversationUserLis
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        init();
-        setClickListeners();
-    }
-
-    private void init() {
         preferenceManager = new PreferenceManager(getActivity().getApplicationContext());
         conversationUserList = new ArrayList<>();
         conversationUsersAdapter = new RecentConversationUsersAdapter(conversationUserList, this);
         binding.recentConversationUsersRecyclerView.setAdapter(conversationUsersAdapter);
+        setClickListeners();
     }
 
     private void setClickListeners() {
