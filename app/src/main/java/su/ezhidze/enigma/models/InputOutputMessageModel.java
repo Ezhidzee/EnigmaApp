@@ -1,10 +1,5 @@
 package su.ezhidze.enigma.models;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
 public class InputOutputMessageModel {
 
     private String senderSubject;
@@ -20,5 +15,29 @@ public class InputOutputMessageModel {
     }
 
     public InputOutputMessageModel() {
+    }
+
+    public String getSenderSubject() {
+        return senderSubject;
+    }
+
+    public void setSenderSubject(String senderSubject) {
+        this.senderSubject = senderSubject;
+    }
+
+    public Integer getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(Integer chatId) {
+        this.chatId = chatId;
+    }
+
+    public String getMessageText() {
+        return messageText;
+    }
+
+    public void setMessageText(String messageText) {
+        this.messageText = messageText;
     }
 }
