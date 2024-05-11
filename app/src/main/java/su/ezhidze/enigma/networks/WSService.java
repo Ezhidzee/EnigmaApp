@@ -95,6 +95,28 @@ public class WSService {
                 .subscribe(topicMessage -> {
                     InputOutputMessageModel inputMessage = gson.fromJson(topicMessage.getPayload(), InputOutputMessageModel.class);
                     Log.v(TAG, "Received " + inputMessage.getMessageText());
+
+                    try {
+                        chatManager.addMessage(inputMessage);
+                    } catch (RecordNotFoundException e) {
+                        Chat newChat = new Chat();
+                        Call<ChatModel> chatModelCall = apiService.getChatById(inputMessage.getChatId());
+                        chatModelCall.enqueue(new Callback<ChatModel>() {
+                            @Override
+                            public void onResponse(Call<ChatModel> call, Response<ChatModel> response) {
+                                newChat.setId(response.body().getId());
+                                newChat.setUsers(response.body().getUsers().stream().map(User::new).collect(Collectors.toList()));
+                                newChat.setMessages(response.body().getMessages().stream().map(Message::new).collect(Collectors.toList()));
+                                chatManager.addChat(newChat);
+                                chatManager.addMessage(inputMessage);
+                            }
+
+                            @Override
+                            public void onFailure(Call<ChatModel> call, Throwable t) {
+                                Log.e(TAG, "Error on new chat creation", t);
+                            }
+                        });
+                    }
                 }, throwable -> {
                     Log.e(TAG, "Error on subscribe topic", throwable);
                 });
