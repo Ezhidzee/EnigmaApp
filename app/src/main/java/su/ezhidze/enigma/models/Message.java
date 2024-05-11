@@ -12,6 +12,16 @@ public class Message {
         this.messageText = messageText;
     }
 
+    public Message(final InputOutputMessageModel inputOutputMessageModel) {
+        chatId = inputOutputMessageModel.getChatId();
+        messageText = inputOutputMessageModel.getMessageText();
+    }
+
+    public Message(final MessageResponseModel messageResponseModel) {
+        chatId = messageResponseModel.getChatId();
+        messageText = messageResponseModel.getMessageText();
+    }
+
     public Integer getChatId() {
         return chatId;
     }

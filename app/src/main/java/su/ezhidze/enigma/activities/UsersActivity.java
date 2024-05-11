@@ -38,6 +38,10 @@ public class UsersActivity extends BaseActivity implements UserListener {
 
     private Chat conversation;
 
+    private Retrofit retrofit;
+
+    private ApiService apiService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,6 +51,8 @@ public class UsersActivity extends BaseActivity implements UserListener {
         preferenceManager = new PreferenceManager(this);
         chatManager = new ChatManager(preferenceManager);
         conversation = new Chat();
+        retrofit = ApiClient.getApiClient();
+        apiService = retrofit.create(ApiService.class);
 
         setListeners();
         getUsers();
@@ -58,9 +64,6 @@ public class UsersActivity extends BaseActivity implements UserListener {
 
     private void getUsers() {
         loading(true);
-
-        Retrofit retrofit = ApiClient.getApiClient();
-        ApiService apiService = retrofit.create(ApiService.class);
 
         Call<ArrayList<UserResponseModel>> usersListCall = apiService.getUsers();
         usersListCall.enqueue(new Callback<ArrayList<UserResponseModel>>() {
@@ -130,9 +133,6 @@ public class UsersActivity extends BaseActivity implements UserListener {
             if (chatExists) break;
         }
         if (!chatExists) {
-            Retrofit retrofit = ApiClient.getApiClient();
-            ApiService apiService = retrofit.create(ApiService.class);
-
             Call<Chat> chatCreationCall = apiService.addChat();
             chatCreationCall.enqueue(new Callback<Chat>() {
                 @Override

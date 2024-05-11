@@ -57,7 +57,7 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(UserResponseModel userResponseModel) {
+    public User(final UserResponseModel userResponseModel) {
         this.name = userResponseModel.getNickname();
         this.phone = userResponseModel.getPhoneNumber();
         this.image = "";

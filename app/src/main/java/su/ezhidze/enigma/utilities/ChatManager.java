@@ -3,9 +3,13 @@ package su.ezhidze.enigma.utilities;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import su.ezhidze.enigma.exceptions.RecordNotFoundException;
 import su.ezhidze.enigma.models.Chat;
+import su.ezhidze.enigma.models.InputOutputMessageModel;
+import su.ezhidze.enigma.models.Message;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class ChatManager {
 
@@ -31,6 +35,18 @@ public class ChatManager {
     public void addChat(Chat chat) {
         chats.add(chat);
         save();
+    }
+
+    public void addMessage(InputOutputMessageModel message) {
+        boolean isFound = false;
+        for (Chat chat : chats) {
+            if (Objects.equals(chat.getId(), message.getChatId())) {
+                isFound = true;
+                chat.getMessages().add(new Message(message));
+                save();
+            }
+        }
+        if (!isFound) throw new RecordNotFoundException("Chat not found");
     }
 
     private void save() {
