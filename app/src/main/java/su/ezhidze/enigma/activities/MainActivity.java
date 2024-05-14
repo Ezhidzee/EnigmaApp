@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -13,6 +12,7 @@ import su.ezhidze.enigma.R;
 import su.ezhidze.enigma.adapters.MainActivityViewPagerFragmentsAdapter;
 import su.ezhidze.enigma.databinding.ActivityMainBinding;
 import su.ezhidze.enigma.utilities.BaseActivity;
+import su.ezhidze.enigma.utilities.ChatManager;
 import su.ezhidze.enigma.utilities.Constants;
 import su.ezhidze.enigma.utilities.PreferenceManager;
 import su.ezhidze.enigma.networks.WSService;
@@ -25,6 +25,8 @@ public class MainActivity extends BaseActivity {
 
     public static PreferenceManager preferenceManager;
 
+    public static ChatManager chatManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,6 +36,7 @@ public class MainActivity extends BaseActivity {
         binding.toolbar.setTitle("Messenger");
 
         preferenceManager = new PreferenceManager(getApplicationContext());
+        chatManager = new ChatManager(preferenceManager);
 
         viewPagerFragmentsAdapter = new MainActivityViewPagerFragmentsAdapter(this);
         binding.viewPager.setAdapter(viewPagerFragmentsAdapter);

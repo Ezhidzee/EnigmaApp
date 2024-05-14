@@ -64,8 +64,8 @@ public class ConversationActivity extends BaseActivity {
     }
 
     private void init() {
-        preferenceManager = new PreferenceManager(getApplicationContext());
-        chatManager = new ChatManager(preferenceManager);
+        preferenceManager = MainActivity.preferenceManager;
+        chatManager = MainActivity.chatManager;
 
         conversationAdapter = new ConversationAdapter(
                 chat,

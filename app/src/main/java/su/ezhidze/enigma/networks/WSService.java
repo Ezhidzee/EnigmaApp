@@ -51,7 +51,7 @@ public class WSService {
     static {
         gson = new Gson();
         mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://10.0.2.2:8080/chat/websocket");
-        chatManager = new ChatManager(MainActivity.preferenceManager);
+        chatManager = MainActivity.chatManager;
         retrofit = ApiClient.getApiClient();
         apiService = retrofit.create(ApiService.class);
     }
@@ -98,7 +98,7 @@ public class WSService {
                     Log.v(TAG, "Received " + inputMessage.getMessageText());
 
                     try {
-                        ConversationActivity.chatManager.addMessage(inputMessage);
+                        chatManager.addMessage(inputMessage);
                     } catch (RecordNotFoundException e) {
                         Chat newChat = new Chat();
                         Call<ChatModel> chatModelCall = apiService.getChatById(inputMessage.getChatId());

@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import su.ezhidze.enigma.activities.ConversationActivity;
+import su.ezhidze.enigma.activities.MainActivity;
 import su.ezhidze.enigma.activities.UsersActivity;
 import su.ezhidze.enigma.adapters.RecentConversationUsersAdapter;
 import su.ezhidze.enigma.databinding.FragmentChatsBinding;
@@ -49,8 +50,8 @@ public class ChatsFragment extends Fragment implements RecentConversationChatLis
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        preferenceManager = new PreferenceManager(getActivity().getApplicationContext());
-        chatManager = new ChatManager(preferenceManager);
+        preferenceManager = MainActivity.preferenceManager;
+        chatManager = MainActivity.chatManager;
         chatList = chatManager.getChats();
         conversationUsersAdapter = new RecentConversationUsersAdapter(chatList, this);
         binding.recentConversationUsersRecyclerView.setAdapter(conversationUsersAdapter);
