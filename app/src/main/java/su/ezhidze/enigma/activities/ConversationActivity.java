@@ -136,7 +136,7 @@ public class ConversationActivity extends BaseActivity {
         binding.conversationRecyclerView.smoothScrollToPosition(chat.getMessages().size() - 1);
     }
 
-    public static Integer getChatId() {
-        return chat.getId();
+    public static Chat getChat() {
+        return chat;
     }
 }

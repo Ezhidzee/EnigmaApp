@@ -48,7 +48,7 @@ public class ChatManager {
                 chat.getMessages().add(new Message(message));
                 save();
                 ChatsFragment.updateData();
-                if (chat.getId().equals(ConversationActivity.getChatId())) {
+                if (ConversationActivity.getChat() != null && chat.getId().equals(ConversationActivity.getChat().getId())) {
                     ConversationActivity.updateData();
                 }
             }
