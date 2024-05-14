@@ -20,6 +20,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import su.ezhidze.enigma.activities.ConversationActivity;
 import su.ezhidze.enigma.activities.MainActivity;
 import su.ezhidze.enigma.exceptions.RecordNotFoundException;
 import su.ezhidze.enigma.models.Chat;
@@ -97,7 +98,7 @@ public class WSService {
                     Log.v(TAG, "Received " + inputMessage.getMessageText());
 
                     try {
-                        chatManager.addMessage(inputMessage);
+                        ConversationActivity.chatManager.addMessage(inputMessage);
                     } catch (RecordNotFoundException e) {
                         Chat newChat = new Chat();
                         Call<ChatModel> chatModelCall = apiService.getChatById(inputMessage.getChatId());

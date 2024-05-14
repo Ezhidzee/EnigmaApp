@@ -9,22 +9,25 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import su.ezhidze.enigma.activities.MainActivity;
 import su.ezhidze.enigma.databinding.ItemContainerRecentConversationUserBinding;
-import su.ezhidze.enigma.listeners.RecentConversationUserListener;
-import su.ezhidze.enigma.models.ChatMessage;
+import su.ezhidze.enigma.listeners.RecentConversationChatListener;
+import su.ezhidze.enigma.models.Chat;
 import su.ezhidze.enigma.models.User;
+import su.ezhidze.enigma.utilities.Constants;
 
 import java.util.List;
+import java.util.Objects;
 
 public class RecentConversationUsersAdapter extends RecyclerView.Adapter<RecentConversationUsersAdapter.RecentConversationViewHolder> {
 
-    private final List<ChatMessage> chatMessageList;
+    private List<Chat> chatList;
 
-    private final RecentConversationUserListener recentConversationUserListener;
+    private final RecentConversationChatListener recentConversationChatListener;
 
-    public RecentConversationUsersAdapter(List<ChatMessage> chatMessageList, RecentConversationUserListener recentConversationUserListener) {
-        this.chatMessageList = chatMessageList;
-        this.recentConversationUserListener = recentConversationUserListener;
+    public RecentConversationUsersAdapter(List<Chat> chatList, RecentConversationChatListener recentConversationChatListener) {
+        this.chatList = chatList;
+        this.recentConversationChatListener = recentConversationChatListener;
     }
 
     @NonNull
@@ -37,12 +40,12 @@ public class RecentConversationUsersAdapter extends RecyclerView.Adapter<RecentC
 
     @Override
     public void onBindViewHolder(@NonNull RecentConversationViewHolder holder, int position) {
-            holder.setData(chatMessageList.get(position));
+            holder.setData(chatList.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return chatMessageList.size();
+        return chatList.size();
     }
 
     class RecentConversationViewHolder extends RecyclerView.ViewHolder {
@@ -53,16 +56,20 @@ public class RecentConversationUsersAdapter extends RecyclerView.Adapter<RecentC
             binding = itemContainerRecentConversationUserBinding;
         }
 
-        void setData(ChatMessage chatMessage) {
-            binding.imageProfile.setImageBitmap(getConversationBitmap(chatMessage.getConversationImage()));
-            binding.textName.setText(chatMessage.getConversationName());
-            binding.textRecent.setText(chatMessage.getMessage());
+        void setData(Chat chat) {
+            User user = new User();
+            for (User i : chat.getUsers()) {
+                if (!Objects.equals(i.getId(), MainActivity.preferenceManager.getString(Constants.KEY_ID))) {
+                    user = i;
+                }
+            }
+            binding.imageProfile.setImageBitmap(getConversationBitmap(user.getImage()));
+            binding.textName.setText(user.getNickname());
+            if (!chat.getMessages().isEmpty()) {
+                binding.textRecent.setText(chat.getMessages().get(chat.getMessages().size() - 1).getMessageText());
+            } else binding.textRecent.setText("");
             binding.getRoot().setOnClickListener(v -> {
-                User user = new User();
-                user.setId(chatMessage.getConversationId());
-                user.setImage(chatMessage.getConversationImage());
-                user.setName(chatMessage.getConversationName());
-                recentConversationUserListener.onUserClicked(user);
+                recentConversationChatListener.onChatClicked(chat);
             });
         }
     }
@@ -71,5 +78,10 @@ public class RecentConversationUsersAdapter extends RecyclerView.Adapter<RecentC
         if(encodedString == null) return null;
         byte[] bytes = Base64.decode(encodedString, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+    }
+
+    public void updateChatList(List<Chat> chatList) {
+        this.chatList = chatList;
+        this.notifyDataSetChanged();
     }
 }

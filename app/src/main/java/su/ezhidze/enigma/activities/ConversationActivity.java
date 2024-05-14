@@ -5,31 +5,34 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Base64;
+import android.view.View;
 import android.widget.Toast;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Objects;
 
 import su.ezhidze.enigma.adapters.ConversationAdapter;
 import su.ezhidze.enigma.databinding.ActivityConversationBinding;
-import su.ezhidze.enigma.models.ChatMessage;
+import su.ezhidze.enigma.models.Chat;
+import su.ezhidze.enigma.models.InputOutputMessageModel;
 import su.ezhidze.enigma.models.User;
+import su.ezhidze.enigma.networks.WSService;
 import su.ezhidze.enigma.utilities.BaseActivity;
+import su.ezhidze.enigma.utilities.ChatManager;
 import su.ezhidze.enigma.utilities.Constants;
 import su.ezhidze.enigma.utilities.PreferenceManager;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
-
 public class ConversationActivity extends BaseActivity {
 
-    private ActivityConversationBinding binding;
+    private static ActivityConversationBinding binding;
 
-    private ConversationAdapter conversationAdapter;
+    private static ConversationAdapter conversationAdapter;
 
     private PreferenceManager preferenceManager;
 
-    private List<ChatMessage> chatMessageList;
+    private static Chat chat;
 
     private User receiverUser;
 
@@ -38,6 +41,8 @@ public class ConversationActivity extends BaseActivity {
     private final boolean isReceiverAvailable = false;
 
     private final String receiverPhoneNumber = null;
+
+    public static ChatManager chatManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,19 +54,21 @@ public class ConversationActivity extends BaseActivity {
         setListeners();
         init();
         listMessages();
+        binding.conversationRecyclerView.setVisibility(View.VISIBLE);
+        binding.progressBar.setVisibility(View.GONE);
     }
 
     private void setListeners() {
         binding.imageBack.setOnClickListener(view -> onBackPressed());
+        binding.layoutSend.setOnClickListener(view -> sendMessage());
     }
 
     private void init() {
         preferenceManager = new PreferenceManager(getApplicationContext());
-        chatMessageList = new ArrayList<>();
+        chatManager = new ChatManager(preferenceManager);
 
-        //Set adapter to  recyclerview
         conversationAdapter = new ConversationAdapter(
-                chatMessageList,
+                chat,
                 getBitmapFromEncodedUrl(receiverUser.getImage()),
                 preferenceManager.getString(Constants.KEY_USER_ID)
         );
@@ -76,8 +83,13 @@ public class ConversationActivity extends BaseActivity {
     }
 
     void loadReceiverDetails() {
-        receiverUser = (User) getIntent().getSerializableExtra(Constants.KEY_USER);
-        binding.textUserName.setText(receiverUser.getName());
+        chat = (Chat) getIntent().getSerializableExtra(Constants.KEY_CHAT);
+        for (User user : chat.getUsers()) {
+            if (!Objects.equals(user.getId(), MainActivity.preferenceManager.getString(Constants.KEY_ID))) {
+                receiverUser = user;
+            }
+        }
+        binding.textUserName.setText(receiverUser.getNickname());
     }
 
     private Bitmap getBitmapFromEncodedUrl(String image) {
@@ -107,4 +119,24 @@ public class ConversationActivity extends BaseActivity {
         finish();
     }
 
+    private void sendMessage() {
+        if (binding.inputMessage.getText().toString().trim().isEmpty()) {
+            return;
+        }
+        InputOutputMessageModel message = new InputOutputMessageModel(preferenceManager.getString(Constants.KEY_NAME), chat.getId(), binding.inputMessage.getText().toString().trim());
+        WSService.sendEchoViaStomp(message);
+        chatManager.addMessage(message);
+        binding.inputMessage.setText(null);
+    }
+
+    public static void updateData() {
+        Integer chatId = chat.getId();
+        chat = chatManager.getChatById(chatId);
+        conversationAdapter.updateChatList(chat);
+        binding.conversationRecyclerView.smoothScrollToPosition(chat.getMessages().size() - 1);
+    }
+
+    public static Integer getChatId() {
+        return chat.getId();
+    }
 }

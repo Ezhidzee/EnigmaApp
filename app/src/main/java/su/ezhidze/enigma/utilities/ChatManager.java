@@ -3,7 +3,10 @@ package su.ezhidze.enigma.utilities;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import su.ezhidze.enigma.activities.ConversationActivity;
+import su.ezhidze.enigma.activities.MainActivity;
 import su.ezhidze.enigma.exceptions.RecordNotFoundException;
+import su.ezhidze.enigma.fragments.ChatsFragment;
 import su.ezhidze.enigma.models.Chat;
 import su.ezhidze.enigma.models.InputOutputMessageModel;
 import su.ezhidze.enigma.models.Message;
@@ -20,12 +23,12 @@ public class ChatManager {
     private final Gson gson;
 
     public ChatManager(PreferenceManager pM) {
-        preferenceManager = pM;
+        preferenceManager = MainActivity.preferenceManager;
         gson = new Gson();
         chats = new ArrayList<>();
-        if (preferenceManager.getString(Constants.KEY_CHATS) != null) {
-            chats = gson.fromJson(preferenceManager.getString(Constants.KEY_CHATS), chats.getClass());
-        } else preferenceManager.putString(Constants.KEY_CHATS, gson.toJson(chats));
+        if (MainActivity.preferenceManager.getString(Constants.KEY_CHATS) != null) {
+            chats = gson.fromJson(MainActivity.preferenceManager.getString(Constants.KEY_CHATS), new TypeToken<ArrayList<Chat>>() {}.getType());
+        } else MainActivity.preferenceManager.putString(Constants.KEY_CHATS, gson.toJson(chats));
     }
 
     public ArrayList<Chat> getChats() {
@@ -44,14 +47,30 @@ public class ChatManager {
                 isFound = true;
                 chat.getMessages().add(new Message(message));
                 save();
+                ChatsFragment.updateData();
+                if (chat.getId().equals(ConversationActivity.getChatId())) {
+                    ConversationActivity.updateData();
+                }
             }
         }
         if (!isFound) throw new RecordNotFoundException("Chat not found");
     }
 
+    public Chat getChatById(Integer chatId) {
+        boolean isFound = false;
+        for (Chat chat : chats) {
+            if (Objects.equals(chat.getId(), chatId)) {
+                isFound = true;
+                return chat;
+            }
+        }
+        if (!isFound) throw new RecordNotFoundException("Chat not found");
+        return null;
+    }
+
     private void save() {
         String json = gson.toJson(chats, new TypeToken<ArrayList<Chat>>() {}.getType());
-        preferenceManager.putString(Constants.KEY_CHATS, json);
+        MainActivity.preferenceManager.putString(Constants.KEY_CHATS, json);
     }
 
     private ArrayList<Chat> getChatsFromPrefs() {

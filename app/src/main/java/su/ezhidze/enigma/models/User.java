@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public class User implements Serializable {
 
-    private String name;
+    private String nickname;
 
-    private String phone;
+    private String phoneNumber;
 
     private String image;
 
@@ -22,20 +22,20 @@ public class User implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getNickname() {
+        return nickname;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getImage() {
@@ -58,8 +58,8 @@ public class User implements Serializable {
     }
 
     public User(final UserResponseModel userResponseModel) {
-        this.name = userResponseModel.getNickname();
-        this.phone = userResponseModel.getPhoneNumber();
+        this.nickname = userResponseModel.getNickname();
+        this.phoneNumber = userResponseModel.getPhoneNumber();
         this.image = "";
         this.publicKey = userResponseModel.getPublicKey();
         this.id = String.valueOf(userResponseModel.getId());

@@ -7,15 +7,16 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import su.ezhidze.enigma.activities.MainActivity;
 import su.ezhidze.enigma.databinding.ItemContainerReceivedMessageBinding;
 import su.ezhidze.enigma.databinding.ItemContainerSentMessageBinding;
-import su.ezhidze.enigma.models.ChatMessage;
-
-import java.util.List;
+import su.ezhidze.enigma.models.Chat;
+import su.ezhidze.enigma.models.Message;
+import su.ezhidze.enigma.utilities.Constants;
 
 public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final List<ChatMessage> chatMessageList;
+    private Chat chat;
 
     private Bitmap receiverProfileImage;
 
@@ -25,25 +26,22 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     public static final int VIEW_TYPE_RECEIVED = 2;
 
-    public void setReceiverProfileImage(Bitmap bitmap){
+    public void setReceiverProfileImage(Bitmap bitmap) {
         receiverProfileImage = bitmap;
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (chatMessageList.get(position).getSenderId().equals(senderId)) {
+        if (chat.getMessages().get(position).getSenderSubject().equals(MainActivity.preferenceManager.getString(Constants.KEY_NAME))) {
             return VIEW_TYPE_SENT;
-        } else {
-            return VIEW_TYPE_RECEIVED;
-        }
+        } else return VIEW_TYPE_RECEIVED;
     }
 
-    public ConversationAdapter(List<ChatMessage> chatMessageList, Bitmap receiverProfileImage, String senderId) {
-        this.chatMessageList = chatMessageList;
+    public ConversationAdapter(Chat chat, Bitmap receiverProfileImage, String senderId) {
+        this.chat = chat;
         this.receiverProfileImage = receiverProfileImage;
         this.senderId = senderId;
     }
-
 
     @NonNull
     @Override
@@ -65,15 +63,15 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (getItemViewType(position) == VIEW_TYPE_SENT) {
-            ((SentMessageViewHolder) holder).setData(chatMessageList.get(position));
+            ((SentMessageViewHolder) holder).setData(chat.getMessages().get(position));
         } else {
-            ((ReceivedMessageViewHolder) holder).setData(chatMessageList.get(position), receiverProfileImage);
+            ((ReceivedMessageViewHolder) holder).setData(chat.getMessages().get(position), receiverProfileImage);
         }
     }
 
     @Override
     public int getItemCount() {
-        return chatMessageList.size();
+        return chat.getMessages().size();
     }
 
     static class SentMessageViewHolder extends RecyclerView.ViewHolder {
@@ -85,9 +83,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             binding = itemContainerSentMessageBinding;
         }
 
-        void setData(ChatMessage chatMessage) {
-            binding.textSentMessage.setText(chatMessage.getMessage());
-            binding.textDateAndTime.setText(chatMessage.getDateTime());
+        void setData(Message message) {
+            binding.textSentMessage.setText(message.getMessageText());
+//            binding.textDateAndTime.setText(message.getDateTime());
         }
     }
 
@@ -100,13 +98,17 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             binding = itemContainerReceivedMessageBinding;
         }
 
-        void setData(ChatMessage chatMessage, Bitmap receiverProfile) {
-            binding.textReceivedMessage.setText(chatMessage.getMessage());
-            binding.textDateAndTime.setText(chatMessage.getDateTime());
+        void setData(Message message, Bitmap receiverProfile) {
+            binding.textReceivedMessage.setText(message.getMessageText());
+//            binding.textDateAndTime.setText(chatMessage.getDateTime());
             if (receiverProfile != null) {
                 binding.imageSenderProfile.setImageBitmap(receiverProfile);
             }
         }
     }
 
+    public void updateChatList(Chat newChat) {
+        this.chat = newChat;
+        this.notifyDataSetChanged();
+    }
 }

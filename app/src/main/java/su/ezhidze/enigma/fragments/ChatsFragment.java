@@ -14,25 +14,27 @@ import su.ezhidze.enigma.activities.ConversationActivity;
 import su.ezhidze.enigma.activities.UsersActivity;
 import su.ezhidze.enigma.adapters.RecentConversationUsersAdapter;
 import su.ezhidze.enigma.databinding.FragmentChatsBinding;
-import su.ezhidze.enigma.listeners.RecentConversationUserListener;
-import su.ezhidze.enigma.models.ChatMessage;
+import su.ezhidze.enigma.listeners.RecentConversationChatListener;
+import su.ezhidze.enigma.models.Chat;
 import su.ezhidze.enigma.models.User;
+import su.ezhidze.enigma.utilities.ChatManager;
 import su.ezhidze.enigma.utilities.Constants;
 import su.ezhidze.enigma.utilities.PreferenceManager;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
-public class ChatsFragment extends Fragment implements RecentConversationUserListener {
+public class ChatsFragment extends Fragment implements RecentConversationChatListener {
 
     private FragmentChatsBinding binding;
 
-    private List<ChatMessage> conversationUserList;
+    private static List<Chat> chatList;
 
-    private RecentConversationUsersAdapter conversationUsersAdapter;
+    private static RecentConversationUsersAdapter conversationUsersAdapter;
 
     private PreferenceManager preferenceManager;
+
+    private static ChatManager chatManager;
 
     public ChatsFragment() {}
 
@@ -47,15 +49,14 @@ public class ChatsFragment extends Fragment implements RecentConversationUserLis
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        init();
-        setClickListeners();
-    }
-
-    private void init() {
         preferenceManager = new PreferenceManager(getActivity().getApplicationContext());
-        conversationUserList = new ArrayList<>();
-        conversationUsersAdapter = new RecentConversationUsersAdapter(conversationUserList, this);
+        chatManager = new ChatManager(preferenceManager);
+        chatList = chatManager.getChats();
+        conversationUsersAdapter = new RecentConversationUsersAdapter(chatList, this);
         binding.recentConversationUsersRecyclerView.setAdapter(conversationUsersAdapter);
+        setClickListeners();
+        binding.recentConversationUsersRecyclerView.setVisibility(View.VISIBLE);
+        binding.progressBar.setVisibility(View.GONE);
     }
 
     private void setClickListeners() {
@@ -71,9 +72,14 @@ public class ChatsFragment extends Fragment implements RecentConversationUserLis
     }
 
     @Override
-    public void onUserClicked(User user) {
+    public void onChatClicked(Chat chat) {
         Intent intent = new Intent(getContext(), ConversationActivity.class);
-        intent.putExtra(Constants.KEY_USER, user);
+        intent.putExtra(Constants.KEY_CHAT, chat);
         startActivity(intent);
+    }
+
+    public static void updateData() {
+        chatList = chatManager.getChats();
+        conversationUsersAdapter.updateChatList(chatList);
     }
 }

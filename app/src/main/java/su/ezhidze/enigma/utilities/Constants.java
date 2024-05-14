@@ -27,6 +27,8 @@ public class Constants {
 
     public static final String KEY_USER = "user";
 
+    public static final String KEY_CHAT = "chat";
+
     public static final String KEY_CHATS = "chats";
 
     public static final String REMOTE_MESSAGE_AUTHORIZATION = "Authorization";

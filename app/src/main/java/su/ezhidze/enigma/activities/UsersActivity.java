@@ -150,6 +150,10 @@ public class UsersActivity extends BaseActivity implements UserListener {
                                 public void onResponse(Call<Chat> call, Response<Chat> response) {
                                     conversation.setUsers(response.body().getUsers());
                                     chatManager.addChat(conversation);
+                                    Intent intent = new Intent(getContext(), ConversationActivity.class);
+                                    intent.putExtra(Constants.KEY_CHAT, conversation);
+                                    startActivity(intent);
+                                    finish();
                                 }
 
                                 @Override
@@ -172,11 +176,6 @@ public class UsersActivity extends BaseActivity implements UserListener {
                 }
             });
         }
-
-        Intent intent = new Intent(this, ConversationActivity.class);
-        intent.putExtra(Constants.KEY_USER, user);
-        startActivity(intent);
-        finish();
     }
 
     public Context getContext() {

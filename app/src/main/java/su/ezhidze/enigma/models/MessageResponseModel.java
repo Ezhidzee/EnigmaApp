@@ -8,9 +8,12 @@ public class MessageResponseModel {
 
     private String messageText;
 
+    private String senderSubject;
+
     public MessageResponseModel(final Message message) {
         chatId = message.getChatId();
         messageText = message.getMessageText();
+        senderSubject = message.getSenderSubject();
     }
 
     public Integer getId() {
@@ -35,5 +38,13 @@ public class MessageResponseModel {
 
     public void setMessageText(String messageText) {
         this.messageText = messageText;
+    }
+
+    public String getSenderSubject() {
+        return senderSubject;
+    }
+
+    public void setSenderSubject(String senderSubject) {
+        this.senderSubject = senderSubject;
     }
 }
