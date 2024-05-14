@@ -22,14 +22,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_percent="0.8" />
 
-    <TextView
-        android:id="@+id/textDateAndTime"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/_4sdp"
-        android:textColor="@color/secondary_text"
-        android:textSize="@dimen/_8sdp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textSentMessage" />
+<!--    <TextView-->
+<!--        android:id="@+id/textDateAndTime"-->
+<!--        android:layout_width="0dp"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginEnd="@dimen/_4sdp"-->
+<!--        android:textColor="@color/secondary_text"-->
+<!--        android:textSize="@dimen/_8sdp"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/textSentMessage" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
