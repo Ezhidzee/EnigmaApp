@@ -3,6 +3,7 @@ package su.ezhidze.enigma.networks;
 import retrofit2.http.PUT;
 import retrofit2.http.Query;
 import su.ezhidze.enigma.models.AuthenticationModel;
+import su.ezhidze.enigma.models.AuthenticationResponseModel;
 import su.ezhidze.enigma.models.Chat;
 import su.ezhidze.enigma.models.ChatModel;
 import su.ezhidze.enigma.models.UserRegistrationModel;
@@ -24,7 +25,7 @@ public interface ApiService {
     );
 
     @POST("enigma/authentication")
-    Call<Map<String, Object>> authentication(
+    Call<AuthenticationResponseModel> authentication(
             @Body AuthenticationModel authenticationModel
     );
 

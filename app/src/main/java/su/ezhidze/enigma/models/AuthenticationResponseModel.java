@@ -2,18 +2,28 @@ package su.ezhidze.enigma.models;
 
 public class AuthenticationResponseModel {
 
-    private String nickname;
+    private Integer id;
 
-    private String token;
+    private String nickname;
 
     private String phoneNumber;
 
-    private Integer id;
+    private String publicKey;
 
-    public AuthenticationResponseModel(String nickname, String token, String phoneNumber, Integer id) {
-        this.nickname = nickname;
-        this.token = token;
-        this.phoneNumber = phoneNumber;
+    private String token;
+
+    public AuthenticationResponseModel(UserResponseModel userResponseModel) {
+        id = userResponseModel.getId();
+        nickname = userResponseModel.getNickname();
+        phoneNumber = userResponseModel.getPhoneNumber();
+        publicKey = userResponseModel.getPublicKey();
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -25,14 +35,6 @@ public class AuthenticationResponseModel {
         this.nickname = nickname;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -41,11 +43,19 @@ public class AuthenticationResponseModel {
         this.phoneNumber = phoneNumber;
     }
 
-    public Integer getId() {
-        return id;
+    public String getPublicKey() {
+        return publicKey;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

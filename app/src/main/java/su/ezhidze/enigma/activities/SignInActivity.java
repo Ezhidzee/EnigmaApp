@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import su.ezhidze.enigma.R;
 import su.ezhidze.enigma.databinding.ActivitySignInBinding;
 import su.ezhidze.enigma.models.AuthenticationModel;
+import su.ezhidze.enigma.models.AuthenticationResponseModel;
 import su.ezhidze.enigma.networks.ApiClient;
 import su.ezhidze.enigma.networks.ApiService;
 import su.ezhidze.enigma.utilities.Constants;
@@ -113,16 +114,16 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
             authenticationModel = new AuthenticationModel(preferenceManager.getString(Constants.KEY_NAME), preferenceManager.getString(Constants.KEY_PASSWORD),
                     Base64.getEncoder().encodeToString(publicKey.getEncoded()));
         }
-        Call<Map<String, Object>> authenticationModelCall = apiService.authentication(authenticationModel);
-        authenticationModelCall.enqueue(new Callback<Map<String, Object>>() {
+        Call<AuthenticationResponseModel> authenticationModelCall = apiService.authentication(authenticationModel);
+        authenticationModelCall.enqueue(new Callback<AuthenticationResponseModel>() {
             @Override
-            public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+            public void onResponse(Call<AuthenticationResponseModel> call, Response<AuthenticationResponseModel> response) {
                 loading(false);
                 if (response.code() == 200) {
-                    preferenceManager.putString(Constants.KEY_NAME, response.body().values().toArray()[0].toString());
-                    preferenceManager.putString(Constants.KEY_TOKEN, response.body().values().toArray()[1].toString());
-                    preferenceManager.putString(Constants.KEY_ID, response.body().values().toArray()[2].toString());
-                    preferenceManager.putString(Constants.KEY_PHONE, response.body().values().toArray()[3].toString());
+                    preferenceManager.putString(Constants.KEY_NAME, response.body().getNickname());
+                    preferenceManager.putString(Constants.KEY_TOKEN, response.body().getToken());
+                    preferenceManager.putString(Constants.KEY_ID, String.valueOf(response.body().getId()));
+                    preferenceManager.putString(Constants.KEY_PHONE, response.body().getPhoneNumber());
                     preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
                     loading(false);
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -139,7 +140,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
             }
 
             @Override
-            public void onFailure(Call<Map<String, Object>> call, Throwable throwable) {
+            public void onFailure(Call<AuthenticationResponseModel> call, Throwable throwable) {
                 loading(false);
                 preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, false);
             }

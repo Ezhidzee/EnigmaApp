@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import su.ezhidze.enigma.R;
 import su.ezhidze.enigma.databinding.ActivitySignUpBinding;
 import su.ezhidze.enigma.models.AuthenticationModel;
+import su.ezhidze.enigma.models.AuthenticationResponseModel;
 import su.ezhidze.enigma.models.UserRegistrationModel;
 import su.ezhidze.enigma.models.UserResponseModel;
 import su.ezhidze.enigma.networks.ApiClient;
@@ -121,14 +122,14 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                                 authenticationModel = new AuthenticationModel(preferenceManager.getString(Constants.KEY_NAME), preferenceManager.getString(Constants.KEY_PASSWORD),
                                         java.util.Base64.getEncoder().encodeToString(publicKey.getEncoded()));
                             }
-                            Call<Map<String, Object>> authenticationModelCall = apiService.authentication(authenticationModel);
+                            Call<AuthenticationResponseModel> authenticationModelCall = apiService.authentication(authenticationModel);
 
-                            authenticationModelCall.enqueue(new Callback<Map<String, Object>>() {
+                            authenticationModelCall.enqueue(new Callback<AuthenticationResponseModel>() {
                                 @Override
-                                public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                                public void onResponse(Call<AuthenticationResponseModel> call, Response<AuthenticationResponseModel> response) {
                                     loading(false);
                                     if (response.code() == 200) {
-                                        preferenceManager.putString(Constants.KEY_TOKEN, response.body().values().toArray()[1].toString());
+                                        preferenceManager.putString(Constants.KEY_TOKEN, response.body().getToken());
                                         preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
                                         loading(false);
                                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
@@ -145,7 +146,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                                 }
 
                                 @Override
-                                public void onFailure(Call<Map<String, Object>> call, Throwable throwable) {
+                                public void onFailure(Call<AuthenticationResponseModel> call, Throwable throwable) {
                                     loading(false);
                                     preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, false);
                                 }
