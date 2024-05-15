@@ -48,8 +48,8 @@ public class UsersActivity extends BaseActivity implements UserListener {
         binding = ActivityUsersBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        preferenceManager = new PreferenceManager(this);
-        chatManager = new ChatManager(preferenceManager);
+        preferenceManager = MainActivity.preferenceManager;
+        chatManager = MainActivity.chatManager;
         conversation = new Chat();
         retrofit = ApiClient.getApiClient();
         apiService = retrofit.create(ApiService.class);
