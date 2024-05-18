@@ -25,6 +25,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 import su.ezhidze.enigma.R;
 import su.ezhidze.enigma.activities.ConversationActivity;
 import su.ezhidze.enigma.activities.MainActivity;
@@ -33,7 +37,8 @@ import su.ezhidze.enigma.adapters.RecentConversationUsersAdapter;
 import su.ezhidze.enigma.databinding.FragmentChatsBinding;
 import su.ezhidze.enigma.listeners.RecentConversationChatListener;
 import su.ezhidze.enigma.models.Chat;
-import su.ezhidze.enigma.models.User;
+import su.ezhidze.enigma.networks.ApiClient;
+import su.ezhidze.enigma.networks.ApiService;
 import su.ezhidze.enigma.utilities.ChatManager;
 import su.ezhidze.enigma.utilities.Constants;
 import su.ezhidze.enigma.utilities.PreferenceManager;
@@ -53,6 +58,10 @@ public class ChatsFragment extends Fragment implements RecentConversationChatLis
 
     private static ChatManager chatManager;
 
+    private Retrofit retrofit;
+
+    private ApiService apiService;
+
     public ChatsFragment() {}
 
     @Override
@@ -68,9 +77,11 @@ public class ChatsFragment extends Fragment implements RecentConversationChatLis
         super.onViewCreated(view, savedInstanceState);
         preferenceManager = MainActivity.preferenceManager;
         chatManager = MainActivity.chatManager;
-        chatList = chatManager.getChats();
+        chatList = (List<Chat>) chatManager.getChatList().clone();
         conversationUsersAdapter = new RecentConversationUsersAdapter(chatList, this);
         binding.recentConversationUsersRecyclerView.setAdapter(conversationUsersAdapter);
+        retrofit = ApiClient.getApiClient();
+        apiService = retrofit.create(ApiService.class);
         setClickListeners();
         binding.recentConversationUsersRecyclerView.setVisibility(View.VISIBLE);
         binding.progressBar.setVisibility(View.GONE);
@@ -97,7 +108,7 @@ public class ChatsFragment extends Fragment implements RecentConversationChatLis
     }
 
     public static void updateData() {
-        chatList = chatManager.getChats();
+        chatList = (List<Chat>) chatManager.getChatList().clone();
         conversationUsersAdapter.updateChatList(chatList);
     }
 
@@ -113,6 +124,7 @@ public class ChatsFragment extends Fragment implements RecentConversationChatLis
                 Chat chat = chatList.get(viewHolder.getBindingAdapterPosition());
 
                 int position = viewHolder.getBindingAdapterPosition();
+                int chatId = chatList.get(position).getId();
                 chatList.remove(position);
                 conversationUsersAdapter.updateChatList(chatList);
 
@@ -126,7 +138,19 @@ public class ChatsFragment extends Fragment implements RecentConversationChatLis
                     @Override
                     public void onDismissed(Snackbar transientBottomBar, int event) {
                         super.onDismissed(transientBottomBar, event);
-                        Log.v(TAG, "Snackbar dismissed!");
+                        chatManager.deleteChat(chatId);
+                        Call<Void> chatRemovalCall = apiService.deleteChat(chatId);
+                        chatRemovalCall.enqueue(new Callback<Void>() {
+                            @Override
+                            public void onResponse(Call<Void> call, Response<Void> response) {
+                                Log.d(TAG, "Chat removed");
+                            }
+
+                            @Override
+                            public void onFailure(Call<Void> call, Throwable t) {
+                                Log.e(TAG, t.toString());
+                            }
+                        });
                     }
                 }).show();
             }

@@ -1,16 +1,31 @@
 package su.ezhidze.enigma.activities;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.material.tabs.TabLayoutMediator;
+
+import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 import su.ezhidze.enigma.R;
 import su.ezhidze.enigma.adapters.MainActivityViewPagerFragmentsAdapter;
 import su.ezhidze.enigma.databinding.ActivityMainBinding;
+import su.ezhidze.enigma.models.Chat;
+import su.ezhidze.enigma.models.ChatModel;
+import su.ezhidze.enigma.networks.ApiClient;
+import su.ezhidze.enigma.networks.ApiService;
 import su.ezhidze.enigma.utilities.BaseActivity;
 import su.ezhidze.enigma.utilities.ChatManager;
 import su.ezhidze.enigma.utilities.Constants;
@@ -27,6 +42,10 @@ public class MainActivity extends BaseActivity {
 
     public static ChatManager chatManager;
 
+    private Retrofit retrofit;
+
+    private ApiService apiService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,6 +56,8 @@ public class MainActivity extends BaseActivity {
 
         preferenceManager = new PreferenceManager(getApplicationContext());
         chatManager = new ChatManager(preferenceManager);
+        retrofit = ApiClient.getApiClient();
+        apiService = retrofit.create(ApiService.class);
 
         viewPagerFragmentsAdapter = new MainActivityViewPagerFragmentsAdapter(this);
         binding.viewPager.setAdapter(viewPagerFragmentsAdapter);
@@ -47,6 +68,33 @@ public class MainActivity extends BaseActivity {
         setToolbarMenu();
 
         WSService.connectStomp();
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        Call<ArrayList<ChatModel>> chatCheckCall = apiService.getUserChats(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
+        chatCheckCall.enqueue(new Callback<ArrayList<ChatModel>>() {
+            @Override
+            public void onResponse(Call<ArrayList<ChatModel>> call, Response<ArrayList<ChatModel>> response) {
+
+                for (Chat chat : chatManager.getChatList()) {
+                    boolean isFound = false;
+                    for (ChatModel ch : response.body()) {
+                        if (chat.getId().equals(ch.getId())) {
+                            isFound = true;
+                            break;
+                        }
+                    }
+                    if (!isFound) chatManager.deleteChat(chat.getId());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArrayList<ChatModel>> call, Throwable t) {
+                Log.e(TAG, t.toString());
+            }
+        });
     }
 
     private void setToolbarMenu() {

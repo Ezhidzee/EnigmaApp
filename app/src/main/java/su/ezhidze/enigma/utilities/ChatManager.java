@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public class ChatManager {
 
-    private ArrayList<Chat> chats;
+    private ArrayList<Chat> chatList;
 
     private PreferenceManager preferenceManager;
 
@@ -25,24 +25,24 @@ public class ChatManager {
     public ChatManager(PreferenceManager pM) {
         preferenceManager = MainActivity.preferenceManager;
         gson = new Gson();
-        chats = new ArrayList<>();
+        chatList = new ArrayList<>();
         if (MainActivity.preferenceManager.getString(Constants.KEY_CHATS) != null) {
-            chats = gson.fromJson(MainActivity.preferenceManager.getString(Constants.KEY_CHATS), new TypeToken<ArrayList<Chat>>() {}.getType());
-        } else MainActivity.preferenceManager.putString(Constants.KEY_CHATS, gson.toJson(chats));
+            chatList = gson.fromJson(MainActivity.preferenceManager.getString(Constants.KEY_CHATS), new TypeToken<ArrayList<Chat>>() {}.getType());
+        } else MainActivity.preferenceManager.putString(Constants.KEY_CHATS, gson.toJson(chatList));
     }
 
-    public ArrayList<Chat> getChats() {
+    public ArrayList<Chat> getChatList() {
         return getChatsFromPrefs();
     }
 
     public void addChat(Chat chat) {
-        chats.add(chat);
+        chatList.add(chat);
         save();
     }
 
     public void addMessage(InputOutputMessageModel message) {
         boolean isFound = false;
-        for (Chat chat : chats) {
+        for (Chat chat : chatList) {
             if (Objects.equals(chat.getId(), message.getChatId())) {
                 isFound = true;
                 chat.getMessages().add(new Message(message));
@@ -58,7 +58,7 @@ public class ChatManager {
 
     public Chat getChatById(Integer chatId) {
         boolean isFound = false;
-        for (Chat chat : chats) {
+        for (Chat chat : chatList) {
             if (Objects.equals(chat.getId(), chatId)) {
                 isFound = true;
                 return chat;
@@ -68,13 +68,31 @@ public class ChatManager {
         return null;
     }
 
+    public void deleteChat(Integer chatId) {
+        boolean isFound = false;
+        int position = 0;
+        for (int i = 0; i < chatList.size(); i++) {
+            if (Objects.equals(chatList.get(i).getId(), chatId)) {
+                isFound = true;
+                position = i;
+            }
+        }
+        if (!isFound) {
+            throw new RecordNotFoundException("Chat not found");
+        } else {
+            chatList.remove(position);
+            save();
+            ChatsFragment.updateData();
+        }
+    }
+
     private void save() {
-        String json = gson.toJson(chats, new TypeToken<ArrayList<Chat>>() {}.getType());
+        String json = gson.toJson(chatList, new TypeToken<ArrayList<Chat>>() {}.getType());
         MainActivity.preferenceManager.putString(Constants.KEY_CHATS, json);
     }
 
     private ArrayList<Chat> getChatsFromPrefs() {
-        chats = gson.fromJson(preferenceManager.getString(Constants.KEY_CHATS), new TypeToken<ArrayList<Chat>>() {}.getType());
-        return chats;
+        chatList = gson.fromJson(preferenceManager.getString(Constants.KEY_CHATS), new TypeToken<ArrayList<Chat>>() {}.getType());
+        return chatList;
     }
 }

@@ -1,5 +1,6 @@
 package su.ezhidze.enigma.networks;
 
+import retrofit2.http.DELETE;
 import retrofit2.http.PUT;
 import retrofit2.http.Query;
 import su.ezhidze.enigma.models.AuthenticationModel;
@@ -42,4 +43,10 @@ public interface ApiService {
 
     @GET("/chats")
     Call<ChatModel> getChatById(@Query("id") Integer id);
+
+    @DELETE("/deleteChat")
+    Call<Void> deleteChat(@Query("id") Integer id);
+
+    @GET("enigma/getUserChats")
+    Call<ArrayList<ChatModel>> getUserChats(@Query("userId") Integer userId);
 }

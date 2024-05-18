@@ -123,7 +123,7 @@ public class UsersActivity extends BaseActivity implements UserListener {
     @Override
     public void onUserClicked(User user) {
         boolean chatExists = false;
-        for (Chat chat : chatManager.getChats()) {
+        for (Chat chat : chatManager.getChatList()) {
             for (User i : chat.getUsers()) {
                 if (i.getId().equals(user.getId())) {
                     chatExists = true;

@@ -155,6 +155,19 @@ public class WSService {
                     Log.e(TAG, "Error on subscribe topic", throwable);
                 });
 
+        Disposable chatRemovalTopic = mStompClient.topic("/user/topic/chat-removal-notifications")
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(topicMessage -> {
+                    try {
+                        chatManager.deleteChat(Integer.valueOf(topicMessage.getPayload()));
+                    } catch (RecordNotFoundException e) {
+                        Log.e(TAG, e.toString());
+                    }
+                }, throwable -> {
+                    Log.e(TAG, "Error on subscribe topic", throwable);
+                });
+
         compositeDisposable.add(dispTopic);
 
         mStompClient.connect(headers);
