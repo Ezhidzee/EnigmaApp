@@ -69,6 +69,7 @@ public class ChatManager {
     }
 
     public void deleteChat(Integer chatId) {
+        getChatsFromPrefs();
         boolean isFound = false;
         int position = 0;
         for (int i = 0; i < chatList.size(); i++) {
