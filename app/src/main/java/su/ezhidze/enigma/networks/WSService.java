@@ -20,7 +20,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import su.ezhidze.enigma.activities.ConversationActivity;
 import su.ezhidze.enigma.activities.MainActivity;
 import su.ezhidze.enigma.exceptions.RecordNotFoundException;
 import su.ezhidze.enigma.models.Chat;
@@ -133,15 +132,14 @@ public class WSService {
                             chatManager.addMessage(message);
                         } catch (RecordNotFoundException e) {
                             Chat newChat = new Chat();
+                            newChat.setId(message.getChatId());
+                            chatManager.addChat(newChat);
+                            chatManager.addMessage(message);
                             Call<ChatModel> chatModelCall = apiService.getChatById(message.getChatId());
                             chatModelCall.enqueue(new Callback<ChatModel>() {
                                 @Override
                                 public void onResponse(Call<ChatModel> call, Response<ChatModel> response) {
-                                    newChat.setId(response.body().getId());
-                                    newChat.setUsers(response.body().getUsers().stream().map(User::new).collect(Collectors.toList()));
-                                    newChat.setMessages(response.body().getMessages().stream().map(Message::new).collect(Collectors.toList()));
-                                    chatManager.addChat(newChat);
-                                    chatManager.addMessage(message);
+                                    chatManager.setChatUsers(response.body().getId(), response.body().getUsers().stream().map(User::new).collect(Collectors.toList()));
                                 }
 
                                 @Override

@@ -10,8 +10,10 @@ import su.ezhidze.enigma.fragments.ChatsFragment;
 import su.ezhidze.enigma.models.Chat;
 import su.ezhidze.enigma.models.InputOutputMessageModel;
 import su.ezhidze.enigma.models.Message;
+import su.ezhidze.enigma.models.User;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class ChatManager {
@@ -51,6 +53,7 @@ public class ChatManager {
                 if (ConversationActivity.getChat() != null && chat.getId().equals(ConversationActivity.getChat().getId())) {
                     ConversationActivity.updateData();
                 }
+                break;
             }
         }
         if (!isFound) throw new RecordNotFoundException("Chat not found");
@@ -84,6 +87,15 @@ public class ChatManager {
             chatList.remove(position);
             save();
             ChatsFragment.updateData();
+        }
+    }
+
+    public void setChatUsers(Integer chatId, List<User> users) {
+        getChatById(chatId).setUsers(users);
+        save();
+        ChatsFragment.updateData();
+        if (ConversationActivity.getChat() != null && chatId.equals(ConversationActivity.getChat().getId())) {
+            ConversationActivity.updateData();
         }
     }
 
