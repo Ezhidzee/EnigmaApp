@@ -25,6 +25,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.List;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -43,8 +45,6 @@ import su.ezhidze.enigma.utilities.ChatManager;
 import su.ezhidze.enigma.utilities.Constants;
 import su.ezhidze.enigma.utilities.PreferenceManager;
 
-import java.util.List;
-
 
 public class ChatsFragment extends Fragment implements RecentConversationChatListener {
 
@@ -62,7 +62,8 @@ public class ChatsFragment extends Fragment implements RecentConversationChatLis
 
     private ApiService apiService;
 
-    public ChatsFragment() {}
+    public ChatsFragment() {
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -128,29 +129,32 @@ public class ChatsFragment extends Fragment implements RecentConversationChatLis
                 chatList.remove(position);
                 conversationUsersAdapter.updateChatList(chatList);
 
-                Snackbar.make(binding.recentConversationUsersRecyclerView, String.valueOf(chat.getId()), Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
+                Snackbar.make(binding.recentConversationUsersRecyclerView, "Chat deleted!", Snackbar.LENGTH_LONG).setAction("Undo", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         chatList.add(position, chat);
                         conversationUsersAdapter.updateChatList(chatList);
                     }
-                }).addCallback(new Snackbar.Callback(){
+                }).addCallback(new Snackbar.Callback() {
                     @Override
                     public void onDismissed(Snackbar transientBottomBar, int event) {
-                        super.onDismissed(transientBottomBar, event);
-                        chatManager.deleteChat(chatId);
-                        Call<Void> chatRemovalCall = apiService.deleteChat(chatId);
-                        chatRemovalCall.enqueue(new Callback<Void>() {
-                            @Override
-                            public void onResponse(Call<Void> call, Response<Void> response) {
-                                Log.d(TAG, "Chat removed");
-                            }
+                        if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT) {
+                            super.onDismissed(transientBottomBar, event);
+                            chatManager.deleteChat(chatId);
+                            Call<Void> chatRemovalCall = apiService.deleteChat(chatId);
+                            chatRemovalCall.enqueue(new Callback<Void>() {
+                                @Override
+                                public void onResponse(Call<Void> call, Response<Void> response) {
+                                    Log.d(TAG, "Chat removed");
+                                }
 
-                            @Override
-                            public void onFailure(Call<Void> call, Throwable t) {
-                                Log.e(TAG, t.toString());
-                            }
-                        });
+                                @Override
+                                public void onFailure(Call<Void> call, Throwable t) {
+                                    Log.e(TAG, t.toString());
+                                }
+                            });
+
+                        }
                     }
                 }).show();
             }
