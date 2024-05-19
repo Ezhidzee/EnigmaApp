@@ -160,11 +160,6 @@ public class ChatsFragment extends Fragment implements RecentConversationChatLis
             }
 
             @Override
-            public float getSwipeThreshold(@NonNull RecyclerView.ViewHolder viewHolder) {
-                return 1f;
-            }
-
-            @Override
             public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
                 setDeleteIcon(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
                 super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
