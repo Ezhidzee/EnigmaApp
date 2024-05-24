@@ -135,6 +135,7 @@ public class MainActivity extends BaseActivity {
                         }
                     });
                     preferenceManager.clear();
+                    WSService.disconnectStomp();
                     goToSignInActivity();
                     return true;
                 }
@@ -151,7 +152,7 @@ public class MainActivity extends BaseActivity {
         finishAffinity();
         preferenceManager.clear();
         Intent intent = new Intent(this, SignInActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();
     }

@@ -1,6 +1,6 @@
 package su.ezhidze.enigma.models;
 
-public class InputOutputMessageModel {
+public class InputOutputMessageModel implements Cloneable {
 
     private String senderSubject;
 

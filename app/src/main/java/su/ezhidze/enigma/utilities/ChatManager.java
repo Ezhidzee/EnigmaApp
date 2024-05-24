@@ -12,13 +12,26 @@ import su.ezhidze.enigma.models.InputOutputMessageModel;
 import su.ezhidze.enigma.models.Message;
 import su.ezhidze.enigma.models.User;
 
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+
 public class ChatManager {
 
-    private ArrayList<Chat> chatList;
+    private static ArrayList<Chat> chatList;
 
     private PreferenceManager preferenceManager;
 
@@ -42,10 +55,27 @@ public class ChatManager {
         save();
     }
 
-    public void addMessage(InputOutputMessageModel message) {
+    public void addMessage(InputOutputMessageModel message, Boolean isEncoded) {
         boolean isFound = false;
         for (Chat chat : chatList) {
             if (Objects.equals(chat.getId(), message.getChatId())) {
+                if (isEncoded) {
+                    String secretMessage = message.getMessageText();
+                    try {
+                        KeyFactory factory = KeyFactory.getInstance("RSA");
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            PrivateKey pr = factory.generatePrivate(new PKCS8EncodedKeySpec(Base64.getDecoder().decode(preferenceManager.getString(Constants.KEY_PRIVATE))));
+                            Cipher decryptCipher = Cipher.getInstance("RSA");
+                            decryptCipher.init(Cipher.DECRYPT_MODE, pr);
+                            byte[] decryptedMessageBytes = decryptCipher.doFinal(Base64.getDecoder().decode(secretMessage));
+                            secretMessage = new String(decryptedMessageBytes, StandardCharsets.UTF_8);
+                        }
+                    } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeySpecException |
+                             InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                        throw new RuntimeException(e);
+                    }
+                    message.setMessageText(secretMessage);
+                }
                 isFound = true;
                 chat.getMessages().add(new Message(message));
                 save();

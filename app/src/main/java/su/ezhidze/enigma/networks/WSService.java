@@ -97,7 +97,7 @@ public class WSService {
                     Log.v(TAG, "Received " + inputMessage.getMessageText());
 
                     try {
-                        chatManager.addMessage(inputMessage);
+                        chatManager.addMessage(inputMessage, true);
                     } catch (RecordNotFoundException e) {
                         Chat newChat = new Chat();
                         Call<ChatModel> chatModelCall = apiService.getChatById(inputMessage.getChatId());
@@ -106,9 +106,8 @@ public class WSService {
                             public void onResponse(Call<ChatModel> call, Response<ChatModel> response) {
                                 newChat.setId(response.body().getId());
                                 newChat.setUsers(response.body().getUsers().stream().map(User::new).collect(Collectors.toList()));
-                                newChat.setMessages(response.body().getMessages().stream().map(Message::new).collect(Collectors.toList()));
                                 chatManager.addChat(newChat);
-                                chatManager.addMessage(inputMessage);
+                                chatManager.addMessage(inputMessage, true);
                             }
 
                             @Override
@@ -129,12 +128,12 @@ public class WSService {
                     Log.v(TAG, String.valueOf(unreadMessages.size()));
                     for (InputOutputMessageModel message : unreadMessages) {
                         try {
-                            chatManager.addMessage(message);
+                            chatManager.addMessage(message, true);
                         } catch (RecordNotFoundException e) {
                             Chat newChat = new Chat();
                             newChat.setId(message.getChatId());
                             chatManager.addChat(newChat);
-                            chatManager.addMessage(message);
+                            chatManager.addMessage(message, true);
                             Call<ChatModel> chatModelCall = apiService.getChatById(message.getChatId());
                             chatModelCall.enqueue(new Callback<ChatModel>() {
                                 @Override
@@ -180,6 +179,10 @@ public class WSService {
                 }, throwable -> {
                     Log.e(TAG, "Error send STOMP echo", throwable);
                 }));
+    }
+
+    public static void disconnectStomp() {
+        mStompClient.disconnect();
     }
 
     private static void sendConnectionNotification() {

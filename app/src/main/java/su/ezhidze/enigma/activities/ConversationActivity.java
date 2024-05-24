@@ -8,10 +8,22 @@ import android.util.Base64;
 import android.view.View;
 import android.widget.Toast;
 
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 import su.ezhidze.enigma.adapters.ConversationAdapter;
 import su.ezhidze.enigma.databinding.ActivityConversationBinding;
@@ -60,7 +72,14 @@ public class ConversationActivity extends BaseActivity {
 
     private void setListeners() {
         binding.imageBack.setOnClickListener(view -> onBackPressed());
-        binding.layoutSend.setOnClickListener(view -> sendMessage());
+        binding.layoutSend.setOnClickListener(view -> {
+            try {
+                sendMessage();
+            } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchPaddingException |
+                     InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private void init() {
@@ -119,14 +138,22 @@ public class ConversationActivity extends BaseActivity {
         finish();
     }
 
-    private void sendMessage() {
+    private void sendMessage() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         if (binding.inputMessage.getText().toString().trim().isEmpty()) {
             return;
         }
-        InputOutputMessageModel message = new InputOutputMessageModel(preferenceManager.getString(Constants.KEY_NAME), chat.getId(), binding.inputMessage.getText().toString().trim());
-        WSService.sendEchoViaStomp(message);
-        chatManager.addMessage(message);
-        binding.inputMessage.setText(null);
+        String secretMessage = binding.inputMessage.getText().toString().trim();
+        KeyFactory factory = KeyFactory.getInstance("RSA");
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            PublicKey publicKey = factory.generatePublic(new X509EncodedKeySpec(java.util.Base64.getDecoder().decode(receiverUser.getPublicKey())));
+            Cipher encryptCipher = Cipher.getInstance("RSA");
+            encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            InputOutputMessageModel message = new InputOutputMessageModel(preferenceManager.getString(Constants.KEY_NAME), chat.getId(), java.util.Base64.getEncoder().encodeToString(encryptCipher.doFinal(secretMessage.getBytes(StandardCharsets.UTF_8))));
+            WSService.sendEchoViaStomp(message);
+            message.setMessageText(secretMessage);
+            chatManager.addMessage(message, false);
+            binding.inputMessage.setText(null);
+        }
     }
 
     public static void updateData() {
