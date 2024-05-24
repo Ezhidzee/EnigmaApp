@@ -24,13 +24,14 @@ import su.ezhidze.enigma.adapters.MainActivityViewPagerFragmentsAdapter;
 import su.ezhidze.enigma.databinding.ActivityMainBinding;
 import su.ezhidze.enigma.models.Chat;
 import su.ezhidze.enigma.models.ChatModel;
+import su.ezhidze.enigma.models.UserResponseModel;
 import su.ezhidze.enigma.networks.ApiClient;
 import su.ezhidze.enigma.networks.ApiService;
+import su.ezhidze.enigma.networks.WSService;
 import su.ezhidze.enigma.utilities.BaseActivity;
 import su.ezhidze.enigma.utilities.ChatManager;
 import su.ezhidze.enigma.utilities.Constants;
 import su.ezhidze.enigma.utilities.PreferenceManager;
-import su.ezhidze.enigma.networks.WSService;
 
 public class MainActivity extends BaseActivity {
 
@@ -52,7 +53,7 @@ public class MainActivity extends BaseActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.toolbar.setTitle("Messenger");
+        binding.toolbar.setTitle("Enigma");
 
         preferenceManager = new PreferenceManager(getApplicationContext());
         chatManager = new ChatManager(preferenceManager);
@@ -108,10 +109,33 @@ public class MainActivity extends BaseActivity {
                     startActivity(intent);
                     return true;
                 } else if (id == R.id.signOut) {
-                    preferenceManager.putString(Constants.KEY_TOKEN, "");
-                    preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, false);
+                    Call<Void> chatsRemovalCall = apiService.deleteUserChats(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
+                    chatsRemovalCall.enqueue(new Callback<Void>() {
+                        @Override
+                        public void onResponse(Call<Void> call, Response<Void> response) {
+                            Log.d(TAG, "Chats removed");
+                        }
+
+                        @Override
+                        public void onFailure(Call<Void> call, Throwable t) {
+                            Log.e(TAG, t.toString());
+                        }
+                    });
+
+                    Call<UserResponseModel> signOutUserCall = apiService.signOutUser(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
+                    signOutUserCall.enqueue(new Callback<UserResponseModel>() {
+                        @Override
+                        public void onResponse(Call<UserResponseModel> call, Response<UserResponseModel> response) {
+                            Log.d(TAG, "Signed out!");
+                        }
+
+                        @Override
+                        public void onFailure(Call<UserResponseModel> call, Throwable t) {
+                            Log.e(TAG, t.toString());
+                        }
+                    });
+                    preferenceManager.clear();
                     goToSignInActivity();
-                    Toast.makeText(MainActivity.this, "Signed Out Successfully", Toast.LENGTH_SHORT).show();
                     return true;
                 }
                 return false;

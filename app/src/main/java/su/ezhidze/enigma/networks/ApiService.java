@@ -47,6 +47,12 @@ public interface ApiService {
     @DELETE("/deleteChat")
     Call<Void> deleteChat(@Query("id") Integer id);
 
+    @DELETE("/deleteUserChats")
+    Call<Void> deleteUserChats(@Query("id") Integer id);
+
     @GET("enigma/getUserChats")
     Call<ArrayList<ChatModel>> getUserChats(@Query("userId") Integer userId);
+
+    @POST("enigma/signOutUser")
+    Call<UserResponseModel> signOutUser(@Query("id") Integer id);
 }
