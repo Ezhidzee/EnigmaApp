@@ -24,7 +24,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Base64;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -124,6 +123,7 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
                     preferenceManager.putString(Constants.KEY_TOKEN, response.body().getToken());
                     preferenceManager.putString(Constants.KEY_ID, String.valueOf(response.body().getId()));
                     preferenceManager.putString(Constants.KEY_PHONE, response.body().getPhoneNumber());
+                    preferenceManager.putString(Constants.KEY_IMAGE, response.body().getImage());
                     preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
                     loading(false);
                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);

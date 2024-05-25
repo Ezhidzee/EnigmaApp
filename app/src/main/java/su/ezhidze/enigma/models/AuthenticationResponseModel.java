@@ -8,6 +8,8 @@ public class AuthenticationResponseModel {
 
     private String phoneNumber;
 
+    private String image;
+
     private String publicKey;
 
     private String token;
@@ -16,6 +18,7 @@ public class AuthenticationResponseModel {
         id = userResponseModel.getId();
         nickname = userResponseModel.getNickname();
         phoneNumber = userResponseModel.getPhoneNumber();
+        image = userResponseModel.getImage();
         publicKey = userResponseModel.getPublicKey();
     }
 
@@ -41,6 +44,14 @@ public class AuthenticationResponseModel {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getPublicKey() {

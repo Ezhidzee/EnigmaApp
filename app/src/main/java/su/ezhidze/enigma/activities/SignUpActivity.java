@@ -34,7 +34,6 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -111,6 +110,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
                         binding.inputPassword.getText().toString());
                 preferenceManager.putString(Constants.KEY_NAME, binding.inputName.getText().toString());
                 preferenceManager.putString(Constants.KEY_PHONE, binding.pickerCountryCode.getFullNumberWithPlus().replace(" ", ""));
+                preferenceManager.putString(Constants.KEY_IMAGE, encodedImage);
                 preferenceManager.putString(Constants.KEY_PASSWORD, binding.inputPassword.getText().toString());
                 Call<UserResponseModel> userRegistrationModelCall = apiService.registration(userRegistrationModel);
                 loading(true);
