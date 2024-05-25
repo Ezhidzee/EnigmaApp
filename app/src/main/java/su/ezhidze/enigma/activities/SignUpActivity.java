@@ -49,6 +49,10 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
     private PreferenceManager preferenceManager;
 
+    private Retrofit retrofit;
+
+    private ApiService apiService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +60,8 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
         setContentView(binding.getRoot());
 
         preferenceManager = new PreferenceManager(getApplicationContext());
+        retrofit = ApiClient.getApiClient();
+        apiService = retrofit.create(ApiService.class);
 
         if (preferenceManager.getBoolean(Constants.KEY_IS_SIGNED_IN)) {
             startActivity(new Intent(this, MainActivity.class));
@@ -99,10 +105,9 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
 
                 preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_UP, false);
                 preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, false);
-                Retrofit retrofit = ApiClient.getApiClient();
-                ApiService apiService = retrofit.create(ApiService.class);
+
                 UserRegistrationModel userRegistrationModel = new UserRegistrationModel(binding.inputName.getText().toString(),
-                        binding.pickerCountryCode.getFullNumberWithPlus().replace(" ", ""),
+                        binding.pickerCountryCode.getFullNumberWithPlus().replace(" ", ""), encodedImage,
                         binding.inputPassword.getText().toString());
                 preferenceManager.putString(Constants.KEY_NAME, binding.inputName.getText().toString());
                 preferenceManager.putString(Constants.KEY_PHONE, binding.pickerCountryCode.getFullNumberWithPlus().replace(" ", ""));

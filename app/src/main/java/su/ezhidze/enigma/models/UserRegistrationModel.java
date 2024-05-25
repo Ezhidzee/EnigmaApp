@@ -6,11 +6,17 @@ public class UserRegistrationModel {
 
     private String phoneNumber;
 
+    private String image;
+
     private String password;
 
-    public UserRegistrationModel(String nickname, String phoneNumber, String password) {
+    public UserRegistrationModel() {
+    }
+
+    public UserRegistrationModel(String nickname, String phoneNumber, String image, String password) {
         this.nickname = nickname;
         this.phoneNumber = phoneNumber;
+        this.image = image;
         this.password = password;
     }
 
@@ -28,6 +34,14 @@ public class UserRegistrationModel {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getPassword() {

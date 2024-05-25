@@ -8,6 +8,8 @@ public class UserResponseModel {
 
     private String phoneNumber;
 
+    private String image;
+
     private String publicKey;
 
     public UserResponseModel(Integer id, String nickname, String phoneNumber, String publicKey) {
@@ -39,6 +41,14 @@ public class UserResponseModel {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getPublicKey() {

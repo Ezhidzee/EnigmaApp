@@ -88,8 +88,7 @@ public class ConversationActivity extends BaseActivity {
 
         conversationAdapter = new ConversationAdapter(
                 chat,
-                getBitmapFromEncodedUrl(receiverUser.getImage()),
-                preferenceManager.getString(Constants.KEY_USER_ID)
+                getBitmapFromEncodedUrl(receiverUser.getImage())
         );
         binding.conversationRecyclerView.setAdapter(conversationAdapter);
     }
