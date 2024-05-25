@@ -185,6 +185,10 @@ public class WSService {
         mStompClient.disconnect();
     }
 
+    public static boolean isConnected() {
+        return mStompClient.isConnected();
+    }
+
     private static void sendConnectionNotification() {
         compositeDisposable.add(mStompClient.send("/app/connection-notifications", MainActivity.preferenceManager.getString(Constants.KEY_NAME) + " connected!")
                 .compose(applySchedulers())

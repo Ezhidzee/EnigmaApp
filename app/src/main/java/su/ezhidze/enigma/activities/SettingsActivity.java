@@ -2,8 +2,6 @@ package su.ezhidze.enigma.activities;
 
 import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,11 +9,14 @@ import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -26,13 +27,10 @@ import su.ezhidze.enigma.models.ImageModel;
 import su.ezhidze.enigma.models.UserResponseModel;
 import su.ezhidze.enigma.networks.ApiClient;
 import su.ezhidze.enigma.networks.ApiService;
+import su.ezhidze.enigma.networks.NetworksHelper;
 import su.ezhidze.enigma.utilities.BaseActivity;
 import su.ezhidze.enigma.utilities.Constants;
 import su.ezhidze.enigma.utilities.PreferenceManager;
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 
 public class SettingsActivity extends BaseActivity {
 
@@ -61,6 +59,7 @@ public class SettingsActivity extends BaseActivity {
         setListeners();
 
     }
+
     private void setUserData() {
         loading(true);
 
@@ -86,7 +85,9 @@ public class SettingsActivity extends BaseActivity {
         binding.fabSelectUserImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pickImage.launch("image/*");
+                if (NetworksHelper.isOnline(SettingsActivity.this)) {
+                    pickImage.launch("image/*");
+                }
             }
         });
 

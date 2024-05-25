@@ -30,6 +30,7 @@ import su.ezhidze.enigma.databinding.ActivityConversationBinding;
 import su.ezhidze.enigma.models.Chat;
 import su.ezhidze.enigma.models.InputOutputMessageModel;
 import su.ezhidze.enigma.models.User;
+import su.ezhidze.enigma.networks.NetworksHelper;
 import su.ezhidze.enigma.networks.WSService;
 import su.ezhidze.enigma.utilities.BaseActivity;
 import su.ezhidze.enigma.utilities.ChatManager;
@@ -138,20 +139,22 @@ public class ConversationActivity extends BaseActivity {
     }
 
     private void sendMessage() throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-        if (binding.inputMessage.getText().toString().trim().isEmpty()) {
-            return;
-        }
-        String secretMessage = binding.inputMessage.getText().toString().trim();
-        KeyFactory factory = KeyFactory.getInstance("RSA");
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            PublicKey publicKey = factory.generatePublic(new X509EncodedKeySpec(java.util.Base64.getDecoder().decode(receiverUser.getPublicKey())));
-            Cipher encryptCipher = Cipher.getInstance("RSA");
-            encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
-            InputOutputMessageModel message = new InputOutputMessageModel(preferenceManager.getString(Constants.KEY_NAME), chat.getId(), java.util.Base64.getEncoder().encodeToString(encryptCipher.doFinal(secretMessage.getBytes(StandardCharsets.UTF_8))));
-            WSService.sendEchoViaStomp(message);
-            message.setMessageText(secretMessage);
-            chatManager.addMessage(message, false);
-            binding.inputMessage.setText(null);
+        if (NetworksHelper.isOnline(this)) {
+            if (binding.inputMessage.getText().toString().trim().isEmpty()) {
+                return;
+            }
+            String secretMessage = binding.inputMessage.getText().toString().trim();
+            KeyFactory factory = KeyFactory.getInstance("RSA");
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                PublicKey publicKey = factory.generatePublic(new X509EncodedKeySpec(java.util.Base64.getDecoder().decode(receiverUser.getPublicKey())));
+                Cipher encryptCipher = Cipher.getInstance("RSA");
+                encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+                InputOutputMessageModel message = new InputOutputMessageModel(preferenceManager.getString(Constants.KEY_NAME), chat.getId(), java.util.Base64.getEncoder().encodeToString(encryptCipher.doFinal(secretMessage.getBytes(StandardCharsets.UTF_8))));
+                WSService.sendEchoViaStomp(message);
+                message.setMessageText(secretMessage);
+                chatManager.addMessage(message, false);
+                binding.inputMessage.setText(null);
+            }
         }
     }
 

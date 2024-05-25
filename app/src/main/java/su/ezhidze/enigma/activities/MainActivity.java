@@ -29,6 +29,7 @@ import su.ezhidze.enigma.models.User;
 import su.ezhidze.enigma.models.UserResponseModel;
 import su.ezhidze.enigma.networks.ApiClient;
 import su.ezhidze.enigma.networks.ApiService;
+import su.ezhidze.enigma.networks.NetworksHelper;
 import su.ezhidze.enigma.networks.WSService;
 import su.ezhidze.enigma.utilities.BaseActivity;
 import su.ezhidze.enigma.utilities.ChatManager;
@@ -70,7 +71,9 @@ public class MainActivity extends BaseActivity {
 
         setToolbarMenu();
 
-        WSService.connectStomp();
+        if (NetworksHelper.isOnline(this)) {
+            WSService.connectStomp();
+        }
     }
 
     @Override
@@ -128,35 +131,37 @@ public class MainActivity extends BaseActivity {
                     startActivity(intent);
                     return true;
                 } else if (id == R.id.signOut) {
-                    Call<Void> chatsRemovalCall = apiService.deleteUserChats(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
-                    chatsRemovalCall.enqueue(new Callback<Void>() {
-                        @Override
-                        public void onResponse(Call<Void> call, Response<Void> response) {
-                            Log.d(TAG, "Chats removed");
-                        }
+                    if (NetworksHelper.isOnline(MainActivity.this)){
+                        Call<Void> chatsRemovalCall = apiService.deleteUserChats(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
+                        chatsRemovalCall.enqueue(new Callback<Void>() {
+                            @Override
+                            public void onResponse(Call<Void> call, Response<Void> response) {
+                                Log.d(TAG, "Chats removed");
+                            }
 
-                        @Override
-                        public void onFailure(Call<Void> call, Throwable t) {
-                            Log.e(TAG, t.toString());
-                        }
-                    });
+                            @Override
+                            public void onFailure(Call<Void> call, Throwable t) {
+                                Log.e(TAG, t.toString());
+                            }
+                        });
 
-                    Call<UserResponseModel> signOutUserCall = apiService.signOutUser(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
-                    signOutUserCall.enqueue(new Callback<UserResponseModel>() {
-                        @Override
-                        public void onResponse(Call<UserResponseModel> call, Response<UserResponseModel> response) {
-                            Log.d(TAG, "Signed out!");
-                        }
+                        Call<UserResponseModel> signOutUserCall = apiService.signOutUser(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
+                        signOutUserCall.enqueue(new Callback<UserResponseModel>() {
+                            @Override
+                            public void onResponse(Call<UserResponseModel> call, Response<UserResponseModel> response) {
+                                Log.d(TAG, "Signed out!");
+                            }
 
-                        @Override
-                        public void onFailure(Call<UserResponseModel> call, Throwable t) {
-                            Log.e(TAG, t.toString());
-                        }
-                    });
-                    preferenceManager.clear();
-                    WSService.disconnectStomp();
-                    goToSignInActivity();
-                    return true;
+                            @Override
+                            public void onFailure(Call<UserResponseModel> call, Throwable t) {
+                                Log.e(TAG, t.toString());
+                            }
+                        });
+                        preferenceManager.clear();
+                        WSService.disconnectStomp();
+                        goToSignInActivity();
+                        return true;
+                    }
                 }
                 return false;
             }

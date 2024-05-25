@@ -22,6 +22,7 @@ import su.ezhidze.enigma.models.UserRegistrationModel;
 import su.ezhidze.enigma.models.UserResponseModel;
 import su.ezhidze.enigma.networks.ApiClient;
 import su.ezhidze.enigma.networks.ApiService;
+import su.ezhidze.enigma.networks.NetworksHelper;
 import su.ezhidze.enigma.utilities.Constants;
 import su.ezhidze.enigma.utilities.PreferenceManager;
 
@@ -87,7 +88,7 @@ public class SignUpActivity extends AppCompatActivity implements View.OnClickLis
             intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         } else if (id == R.id.buttonSignUp) {
-            if (isValidSignUpDetails()) {
+            if (isValidSignUpDetails() && NetworksHelper.isOnline(this)) {
                 KeyPairGenerator generator = null;
                 try {
                     generator = KeyPairGenerator.getInstance("RSA");

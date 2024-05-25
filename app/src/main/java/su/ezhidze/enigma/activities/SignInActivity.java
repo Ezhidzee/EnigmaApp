@@ -8,15 +8,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import su.ezhidze.enigma.R;
-import su.ezhidze.enigma.databinding.ActivitySignInBinding;
-import su.ezhidze.enigma.models.AuthenticationModel;
-import su.ezhidze.enigma.models.AuthenticationResponseModel;
-import su.ezhidze.enigma.networks.ApiClient;
-import su.ezhidze.enigma.networks.ApiService;
-import su.ezhidze.enigma.utilities.Constants;
-import su.ezhidze.enigma.utilities.PreferenceManager;
-
 import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -29,6 +20,15 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import su.ezhidze.enigma.R;
+import su.ezhidze.enigma.databinding.ActivitySignInBinding;
+import su.ezhidze.enigma.models.AuthenticationModel;
+import su.ezhidze.enigma.models.AuthenticationResponseModel;
+import su.ezhidze.enigma.networks.ApiClient;
+import su.ezhidze.enigma.networks.ApiService;
+import su.ezhidze.enigma.networks.NetworksHelper;
+import su.ezhidze.enigma.utilities.Constants;
+import su.ezhidze.enigma.utilities.PreferenceManager;
 
 public class SignInActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -92,59 +92,61 @@ public class SignInActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void signIn() throws NoSuchAlgorithmException {
-        loading(true);
-        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-        generator.initialize(2048);
-        KeyPair pair = generator.generateKeyPair();
-        PrivateKey privateKey = pair.getPrivate();
-        PublicKey publicKey = pair.getPublic();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            preferenceManager.putString(Constants.KEY_PRIVATE, Base64.getEncoder().encodeToString(privateKey.getEncoded()));
-        }
+        if (NetworksHelper.isOnline(this)) {
+            loading(true);
+            KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+            generator.initialize(2048);
+            KeyPair pair = generator.generateKeyPair();
+            PrivateKey privateKey = pair.getPrivate();
+            PublicKey publicKey = pair.getPublic();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                preferenceManager.putString(Constants.KEY_PRIVATE, Base64.getEncoder().encodeToString(privateKey.getEncoded()));
+            }
 
-        preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, false);
-        Retrofit retrofit = ApiClient.getApiClient();
-        ApiService apiService = retrofit.create(ApiService.class);
-        preferenceManager.putString(Constants.KEY_NAME, binding.inputName.getText().toString());
-        preferenceManager.putString(Constants.KEY_PASSWORD, binding.inputPassword.getText().toString());
-        AuthenticationModel authenticationModel =
-                null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            authenticationModel = new AuthenticationModel(preferenceManager.getString(Constants.KEY_NAME), preferenceManager.getString(Constants.KEY_PASSWORD),
-                    Base64.getEncoder().encodeToString(publicKey.getEncoded()));
-        }
-        Call<AuthenticationResponseModel> authenticationModelCall = apiService.authentication(authenticationModel);
-        authenticationModelCall.enqueue(new Callback<AuthenticationResponseModel>() {
-            @Override
-            public void onResponse(Call<AuthenticationResponseModel> call, Response<AuthenticationResponseModel> response) {
-                loading(false);
-                if (response.code() == 200) {
-                    preferenceManager.putString(Constants.KEY_NAME, response.body().getNickname());
-                    preferenceManager.putString(Constants.KEY_TOKEN, response.body().getToken());
-                    preferenceManager.putString(Constants.KEY_ID, String.valueOf(response.body().getId()));
-                    preferenceManager.putString(Constants.KEY_PHONE, response.body().getPhoneNumber());
-                    preferenceManager.putString(Constants.KEY_IMAGE, response.body().getImage());
-                    preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
+            preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, false);
+            Retrofit retrofit = ApiClient.getApiClient();
+            ApiService apiService = retrofit.create(ApiService.class);
+            preferenceManager.putString(Constants.KEY_NAME, binding.inputName.getText().toString());
+            preferenceManager.putString(Constants.KEY_PASSWORD, binding.inputPassword.getText().toString());
+            AuthenticationModel authenticationModel =
+                    null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                authenticationModel = new AuthenticationModel(preferenceManager.getString(Constants.KEY_NAME), preferenceManager.getString(Constants.KEY_PASSWORD),
+                        Base64.getEncoder().encodeToString(publicKey.getEncoded()));
+            }
+            Call<AuthenticationResponseModel> authenticationModelCall = apiService.authentication(authenticationModel);
+            authenticationModelCall.enqueue(new Callback<AuthenticationResponseModel>() {
+                @Override
+                public void onResponse(Call<AuthenticationResponseModel> call, Response<AuthenticationResponseModel> response) {
                     loading(false);
-                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                    startActivity(intent);
-                } else {
-                    try {
-                        assert response.errorBody() != null;
-                        showToast(response.errorBody().string());
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
+                    if (response.code() == 200) {
+                        preferenceManager.putString(Constants.KEY_NAME, response.body().getNickname());
+                        preferenceManager.putString(Constants.KEY_TOKEN, response.body().getToken());
+                        preferenceManager.putString(Constants.KEY_ID, String.valueOf(response.body().getId()));
+                        preferenceManager.putString(Constants.KEY_PHONE, response.body().getPhoneNumber());
+                        preferenceManager.putString(Constants.KEY_IMAGE, response.body().getImage());
+                        preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, true);
+                        loading(false);
+                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                    } else {
+                        try {
+                            assert response.errorBody() != null;
+                            showToast(response.errorBody().string());
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onFailure(Call<AuthenticationResponseModel> call, Throwable throwable) {
-                loading(false);
-                preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, false);
-            }
-        });
+                @Override
+                public void onFailure(Call<AuthenticationResponseModel> call, Throwable throwable) {
+                    loading(false);
+                    preferenceManager.putBoolean(Constants.KEY_IS_SIGNED_IN, false);
+                }
+            });
+        }
     }
 
     private void showToast(String message) {
