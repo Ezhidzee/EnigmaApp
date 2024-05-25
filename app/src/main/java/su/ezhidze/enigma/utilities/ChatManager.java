@@ -129,7 +129,7 @@ public class ChatManager {
         }
     }
 
-    private void save() {
+    public void save() {
         String json = gson.toJson(chatList, new TypeToken<ArrayList<Chat>>() {}.getType());
         MainActivity.preferenceManager.putString(Constants.KEY_CHATS, json);
     }

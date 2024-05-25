@@ -24,6 +24,7 @@ import su.ezhidze.enigma.adapters.MainActivityViewPagerFragmentsAdapter;
 import su.ezhidze.enigma.databinding.ActivityMainBinding;
 import su.ezhidze.enigma.models.Chat;
 import su.ezhidze.enigma.models.ChatModel;
+import su.ezhidze.enigma.models.User;
 import su.ezhidze.enigma.models.UserResponseModel;
 import su.ezhidze.enigma.networks.ApiClient;
 import su.ezhidze.enigma.networks.ApiService;
@@ -84,6 +85,22 @@ public class MainActivity extends BaseActivity {
                     for (ChatModel ch : response.body()) {
                         if (chat.getId().equals(ch.getId())) {
                             isFound = true;
+                            User receiverUser = null;
+                            UserResponseModel receiverUserModel = null;
+                            for (User u : chat.getUsers()) {
+                                if (!u.getId().equals(preferenceManager.getString(Constants.KEY_ID))) {
+                                    receiverUser = u;
+                                }
+                            }
+                            for (UserResponseModel u : ch.getUsers()) {
+                                if (!String.valueOf(u.getId()).equals(preferenceManager.getString(Constants.KEY_ID))) {
+                                    receiverUserModel = u;
+                                }
+                            }
+                            if (!receiverUserModel.getImage().equals(receiverUser.getImage())) {
+                                receiverUser.setImage(receiverUserModel.getImage());
+                                chatManager.save();
+                            }
                             break;
                         }
                     }

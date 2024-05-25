@@ -1,6 +1,7 @@
 package su.ezhidze.enigma.networks;
 
 import retrofit2.http.DELETE;
+import retrofit2.http.PATCH;
 import retrofit2.http.PUT;
 import retrofit2.http.Query;
 import su.ezhidze.enigma.models.AuthenticationModel;
@@ -55,4 +56,7 @@ public interface ApiService {
 
     @POST("enigma/signOutUser")
     Call<UserResponseModel> signOutUser(@Query("id") Integer id);
+
+    @PATCH("enigma/setImage")
+    Call<UserResponseModel> setImage(@Query("id") Integer id, @Query("image") String image);
 }

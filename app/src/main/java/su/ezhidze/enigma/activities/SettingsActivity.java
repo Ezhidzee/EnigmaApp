@@ -1,5 +1,7 @@
 package su.ezhidze.enigma.activities;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -7,6 +9,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -14,7 +17,14 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 import su.ezhidze.enigma.databinding.ActivitySettingsBinding;
+import su.ezhidze.enigma.models.UserResponseModel;
+import su.ezhidze.enigma.networks.ApiClient;
+import su.ezhidze.enigma.networks.ApiService;
 import su.ezhidze.enigma.utilities.BaseActivity;
 import su.ezhidze.enigma.utilities.Constants;
 import su.ezhidze.enigma.utilities.PreferenceManager;
@@ -31,12 +41,19 @@ public class SettingsActivity extends BaseActivity {
 
     private PreferenceManager preferenceManager;
 
+    private Retrofit retrofit;
+
+    private ApiService apiService;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivitySettingsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         preferenceManager = new PreferenceManager(getApplicationContext());
+        retrofit = ApiClient.getApiClient();
+        apiService = retrofit.create(ApiService.class);
 
         setUserData();
 
@@ -72,13 +89,6 @@ public class SettingsActivity extends BaseActivity {
             }
         });
 
-        binding.layoutUpdateUsername.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                updateUserName();
-            }
-        });
-
         binding.imageBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -99,38 +109,23 @@ public class SettingsActivity extends BaseActivity {
                         binding.imageUserProfile.setImageBitmap(bitmap);
                         encodedImage = encodeImage(bitmap);
                         preferenceManager.putString(Constants.KEY_IMAGE, encodedImage);
+                        Call<UserResponseModel> imageSetCall = apiService.setImage(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)), encodedImage);
+                        imageSetCall.enqueue(new Callback<UserResponseModel>() {
+                            @Override
+                            public void onResponse(Call<UserResponseModel> call, Response<UserResponseModel> response) {
+                                Log.d(TAG, "Image changed successfully!");
+                            }
 
+                            @Override
+                            public void onFailure(Call<UserResponseModel> call, Throwable t) {
+                                Log.e(TAG, t.toString());
+                            }
+                        });
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
                 }
             });
-
-
-    private void updateUserName() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Update Username");
-        builder.setMessage("Enter Your new username");
-
-        //Set edittext to get input form user
-        final EditText input = new EditText(this);
-        input.setHint("Enter Your Username");
-        builder.setView(input);
-
-        builder.setPositiveButton("SAVE", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-
-            }
-        }).setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        });
-        builder.show();
-
-    }
 
     private String encodeImage(Bitmap bitmap) {
         int previewWidth = 150;
