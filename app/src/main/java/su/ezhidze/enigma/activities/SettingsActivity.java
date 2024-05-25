@@ -22,6 +22,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import su.ezhidze.enigma.databinding.ActivitySettingsBinding;
+import su.ezhidze.enigma.models.ImageModel;
 import su.ezhidze.enigma.models.UserResponseModel;
 import su.ezhidze.enigma.networks.ApiClient;
 import su.ezhidze.enigma.networks.ApiService;
@@ -106,14 +107,15 @@ public class SettingsActivity extends BaseActivity {
                     try {
                         InputStream inputStream = getContentResolver().openInputStream(result);
                         Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                        binding.imageUserProfile.setImageBitmap(bitmap);
                         encodedImage = encodeImage(bitmap);
                         preferenceManager.putString(Constants.KEY_IMAGE, encodedImage);
-                        Call<UserResponseModel> imageSetCall = apiService.setImage(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)), encodedImage);
+                        ImageModel image = new ImageModel(encodedImage);
+                        Call<UserResponseModel> imageSetCall = apiService.setImage(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)), image);
                         imageSetCall.enqueue(new Callback<UserResponseModel>() {
                             @Override
                             public void onResponse(Call<UserResponseModel> call, Response<UserResponseModel> response) {
                                 Log.d(TAG, "Image changed successfully!");
+                                binding.imageUserProfile.setImageBitmap(bitmap);
                             }
 
                             @Override

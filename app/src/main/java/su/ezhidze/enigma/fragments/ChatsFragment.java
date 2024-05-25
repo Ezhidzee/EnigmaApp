@@ -22,9 +22,11 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -39,6 +41,9 @@ import su.ezhidze.enigma.adapters.RecentConversationUsersAdapter;
 import su.ezhidze.enigma.databinding.FragmentChatsBinding;
 import su.ezhidze.enigma.listeners.RecentConversationChatListener;
 import su.ezhidze.enigma.models.Chat;
+import su.ezhidze.enigma.models.ChatModel;
+import su.ezhidze.enigma.models.User;
+import su.ezhidze.enigma.models.UserResponseModel;
 import su.ezhidze.enigma.networks.ApiClient;
 import su.ezhidze.enigma.networks.ApiService;
 import su.ezhidze.enigma.utilities.ChatManager;
@@ -87,11 +92,61 @@ public class ChatsFragment extends Fragment implements RecentConversationChatLis
         binding.recentConversationUsersRecyclerView.setVisibility(View.VISIBLE);
         binding.progressBar.setVisibility(View.GONE);
         setSwipeToDelete();
+        binding.swiperefresh.setColorSchemeResources(R.color.primary);
     }
 
     private void setClickListeners() {
         binding.fabNewChat.setOnClickListener(view -> {
             startActivity(new Intent(getContext(), UsersActivity.class));
+        });
+
+        binding.swiperefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Call<ArrayList<ChatModel>> chatCheckCall = apiService.getUserChats(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
+                chatCheckCall.enqueue(new Callback<ArrayList<ChatModel>>() {
+                    @Override
+                    public void onResponse(Call<ArrayList<ChatModel>> call, Response<ArrayList<ChatModel>> response) {
+
+                        for (Chat chat : chatManager.getChatList()) {
+                            boolean isFound = false;
+                            for (ChatModel ch : response.body()) {
+                                if (chat.getId().equals(ch.getId())) {
+                                    isFound = true;
+                                    User receiverUser = null;
+                                    UserResponseModel receiverUserModel = null;
+                                    for (User u : chat.getUsers()) {
+                                        if (!u.getId().equals(preferenceManager.getString(Constants.KEY_ID))) {
+                                            receiverUser = u;
+                                        }
+                                    }
+                                    for (UserResponseModel u : ch.getUsers()) {
+                                        if (!String.valueOf(u.getId()).equals(preferenceManager.getString(Constants.KEY_ID))) {
+                                            receiverUserModel = u;
+                                        }
+                                    }
+                                    if (!receiverUserModel.getImage().equals(receiverUser.getImage())) {
+                                        receiverUser.setImage(receiverUserModel.getImage());
+                                        chatManager.save();
+                                    }
+                                    break;
+                                }
+                            }
+                            if (!isFound) chatManager.deleteChat(chat.getId());
+                        }
+                        updateData();
+                        binding.swiperefresh.setRefreshing(false);
+                    }
+
+                    @Override
+                    public void onFailure(Call<ArrayList<ChatModel>> call, Throwable t) {
+                        Log.e(TAG, t.toString());
+                    }
+                });
+
+            }
+
+
         });
     }
 

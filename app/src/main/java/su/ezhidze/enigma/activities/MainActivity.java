@@ -22,6 +22,7 @@ import retrofit2.Retrofit;
 import su.ezhidze.enigma.R;
 import su.ezhidze.enigma.adapters.MainActivityViewPagerFragmentsAdapter;
 import su.ezhidze.enigma.databinding.ActivityMainBinding;
+import su.ezhidze.enigma.fragments.ChatsFragment;
 import su.ezhidze.enigma.models.Chat;
 import su.ezhidze.enigma.models.ChatModel;
 import su.ezhidze.enigma.models.User;
@@ -100,6 +101,7 @@ public class MainActivity extends BaseActivity {
                             if (!receiverUserModel.getImage().equals(receiverUser.getImage())) {
                                 receiverUser.setImage(receiverUserModel.getImage());
                                 chatManager.save();
+                                ChatsFragment.updateData();
                             }
                             break;
                         }

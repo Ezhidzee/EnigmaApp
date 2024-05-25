@@ -8,6 +8,7 @@ import su.ezhidze.enigma.models.AuthenticationModel;
 import su.ezhidze.enigma.models.AuthenticationResponseModel;
 import su.ezhidze.enigma.models.Chat;
 import su.ezhidze.enigma.models.ChatModel;
+import su.ezhidze.enigma.models.ImageModel;
 import su.ezhidze.enigma.models.UserRegistrationModel;
 import su.ezhidze.enigma.models.UserResponseModel;
 
@@ -58,5 +59,5 @@ public interface ApiService {
     Call<UserResponseModel> signOutUser(@Query("id") Integer id);
 
     @PATCH("enigma/setImage")
-    Call<UserResponseModel> setImage(@Query("id") Integer id, @Query("image") String image);
+    Call<UserResponseModel> setImage(@Query("id") Integer id, @Body ImageModel image);
 }
