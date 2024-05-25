@@ -20,8 +20,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     private Bitmap receiverProfileImage;
 
-    private final String senderId;
-
     public static final int VIEW_TYPE_SENT = 1;
 
     public static final int VIEW_TYPE_RECEIVED = 2;
@@ -37,10 +35,9 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
         } else return VIEW_TYPE_RECEIVED;
     }
 
-    public ConversationAdapter(Chat chat, Bitmap receiverProfileImage, String senderId) {
+    public ConversationAdapter(Chat chat, Bitmap receiverProfileImage) {
         this.chat = chat;
         this.receiverProfileImage = receiverProfileImage;
-        this.senderId = senderId;
     }
 
     @NonNull
@@ -85,7 +82,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         void setData(Message message) {
             binding.textSentMessage.setText(message.getMessageText());
-//            binding.textDateAndTime.setText(message.getDateTime());
         }
     }
 
@@ -100,7 +96,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
         void setData(Message message, Bitmap receiverProfile) {
             binding.textReceivedMessage.setText(message.getMessageText());
-//            binding.textDateAndTime.setText(chatMessage.getDateTime());
             if (receiverProfile != null) {
                 binding.imageSenderProfile.setImageBitmap(receiverProfile);
             }
