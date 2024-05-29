@@ -111,7 +111,7 @@ public class SettingsActivity extends BaseActivity {
                         encodedImage = encodeImage(bitmap);
                         preferenceManager.putString(Constants.KEY_IMAGE, encodedImage);
                         ImageModel image = new ImageModel(encodedImage);
-                        Call<UserResponseModel> imageSetCall = apiService.setImage(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)), image);
+                        Call<UserResponseModel> imageSetCall = apiService.setImage(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)), image, "Bearer " + preferenceManager.getString(Constants.KEY_TOKEN));
                         imageSetCall.enqueue(new Callback<UserResponseModel>() {
                             @Override
                             public void onResponse(Call<UserResponseModel> call, Response<UserResponseModel> response) {

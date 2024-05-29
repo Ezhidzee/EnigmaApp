@@ -65,7 +65,7 @@ public class UsersActivity extends BaseActivity implements UserListener {
     private void getUsers() {
         loading(true);
 
-        Call<ArrayList<UserResponseModel>> usersListCall = apiService.getUsers();
+        Call<ArrayList<UserResponseModel>> usersListCall = apiService.getUsers("Bearer " + preferenceManager.getString(Constants.KEY_TOKEN));
         usersListCall.enqueue(new Callback<ArrayList<UserResponseModel>>() {
             @Override
             public void onResponse(Call<ArrayList<UserResponseModel>> call, Response<ArrayList<UserResponseModel>> response) {
@@ -133,18 +133,18 @@ public class UsersActivity extends BaseActivity implements UserListener {
             if (chatExists) break;
         }
         if (!chatExists) {
-            Call<Chat> chatCreationCall = apiService.addChat();
+            Call<Chat> chatCreationCall = apiService.addChat("Bearer " + preferenceManager.getString(Constants.KEY_TOKEN));
             chatCreationCall.enqueue(new Callback<Chat>() {
                 @Override
                 public void onResponse(Call<Chat> call, Response<Chat> response) {
                     conversation.setId(response.body().getId());
 
-                    Call<Chat> addUser1Call = apiService.joinUser(conversation.getId(), Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
+                    Call<Chat> addUser1Call = apiService.joinUser(conversation.getId(), Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)), "Bearer " + preferenceManager.getString(Constants.KEY_TOKEN));
                     addUser1Call.enqueue(new Callback<Chat>() {
                         @Override
                         public void onResponse(Call<Chat> call, Response<Chat> response) {
 
-                            Call<Chat> addUser2Call = apiService.joinUser(conversation.getId(), Integer.valueOf(user.getId()));
+                            Call<Chat> addUser2Call = apiService.joinUser(conversation.getId(), Integer.valueOf(user.getId()), "Bearer " + preferenceManager.getString(Constants.KEY_TOKEN));
                             addUser2Call.enqueue(new Callback<Chat>() {
                                 @Override
                                 public void onResponse(Call<Chat> call, Response<Chat> response) {

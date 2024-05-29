@@ -109,7 +109,7 @@ public class ChatsFragment extends Fragment implements RecentConversationChatLis
             public void onRefresh() {
                 if (NetworksHelper.isOnline(getContext())) {
                     if (!WSService.isConnected()) WSService.connectStomp();
-                    Call<ArrayList<ChatModel>> chatCheckCall = apiService.getUserChats(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
+                    Call<ArrayList<ChatModel>> chatCheckCall = apiService.getUserChats(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)), "Bearer " + preferenceManager.getString(Constants.KEY_TOKEN));
                     chatCheckCall.enqueue(new Callback<ArrayList<ChatModel>>() {
                         @Override
                         public void onResponse(Call<ArrayList<ChatModel>> call, Response<ArrayList<ChatModel>> response) {
@@ -203,7 +203,7 @@ public class ChatsFragment extends Fragment implements RecentConversationChatLis
                         if (event == Snackbar.Callback.DISMISS_EVENT_TIMEOUT) {
                             super.onDismissed(transientBottomBar, event);
                             chatManager.deleteChat(chatId);
-                            Call<Void> chatRemovalCall = apiService.deleteChat(chatId);
+                            Call<Void> chatRemovalCall = apiService.deleteChat(chatId, "Bearer " + preferenceManager.getString(Constants.KEY_TOKEN));
                             chatRemovalCall.enqueue(new Callback<Void>() {
                                 @Override
                                 public void onResponse(Call<Void> call, Response<Void> response) {

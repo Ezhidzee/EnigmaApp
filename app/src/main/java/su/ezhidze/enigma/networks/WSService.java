@@ -8,7 +8,9 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.reactivex.CompletableTransformer;
@@ -25,7 +27,6 @@ import su.ezhidze.enigma.exceptions.RecordNotFoundException;
 import su.ezhidze.enigma.models.Chat;
 import su.ezhidze.enigma.models.ChatModel;
 import su.ezhidze.enigma.models.InputOutputMessageModel;
-import su.ezhidze.enigma.models.Message;
 import su.ezhidze.enigma.models.User;
 import su.ezhidze.enigma.utilities.ChatManager;
 import su.ezhidze.enigma.utilities.Constants;
@@ -49,13 +50,15 @@ public class WSService {
 
     static {
         gson = new Gson();
-        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://10.0.2.2:8080/chat/websocket");
         chatManager = MainActivity.chatManager;
         retrofit = ApiClient.getApiClient();
         apiService = retrofit.create(ApiService.class);
     }
 
     public static void connectStomp() {
+        Map<String, String> headersMap = new HashMap<>();
+        headersMap.put("Authorization", "Bearer " + MainActivity.preferenceManager.getString(Constants.KEY_TOKEN));
+        mStompClient = Stomp.over(Stomp.ConnectionProvider.OKHTTP, "ws://10.0.2.2:8080/chat/websocket", headersMap);
         resetSubscriptions();
 
         List<StompHeader> headers = new ArrayList<>();
@@ -71,18 +74,18 @@ public class WSService {
                 .subscribe(lifecycleEvent -> {
                     switch (lifecycleEvent.getType()) {
                         case OPENED:
-                            Log.i(TAG,"Stomp connection opened");
+                            Log.i(TAG, "Stomp connection opened");
                             sendConnectionNotification();
                             break;
                         case ERROR:
                             Log.e(TAG, "Stomp connection error", lifecycleEvent.getException());
                             break;
                         case CLOSED:
-                            Log.i(TAG,"Stomp connection closed");
+                            Log.i(TAG, "Stomp connection closed");
                             resetSubscriptions();
                             break;
                         case FAILED_SERVER_HEARTBEAT:
-                            Log.i(TAG,"Stomp failed server heartbeat");
+                            Log.i(TAG, "Stomp failed server heartbeat");
                             break;
                     }
                 });
@@ -100,7 +103,7 @@ public class WSService {
                         chatManager.addMessage(inputMessage, true);
                     } catch (RecordNotFoundException e) {
                         Chat newChat = new Chat();
-                        Call<ChatModel> chatModelCall = apiService.getChatById(inputMessage.getChatId());
+                        Call<ChatModel> chatModelCall = apiService.getChatById(inputMessage.getChatId(), "Bearer " + MainActivity.preferenceManager.getString(Constants.KEY_TOKEN));
                         chatModelCall.enqueue(new Callback<ChatModel>() {
                             @Override
                             public void onResponse(Call<ChatModel> call, Response<ChatModel> response) {
@@ -134,7 +137,7 @@ public class WSService {
                             newChat.setId(message.getChatId());
                             chatManager.addChat(newChat);
                             chatManager.addMessage(message, true);
-                            Call<ChatModel> chatModelCall = apiService.getChatById(message.getChatId());
+                            Call<ChatModel> chatModelCall = apiService.getChatById(message.getChatId(), "Bearer " + MainActivity.preferenceManager.getString(Constants.KEY_TOKEN));
                             chatModelCall.enqueue(new Callback<ChatModel>() {
                                 @Override
                                 public void onResponse(Call<ChatModel> call, Response<ChatModel> response) {

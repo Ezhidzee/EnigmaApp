@@ -1,6 +1,7 @@
 package su.ezhidze.enigma.networks;
 
 import retrofit2.http.DELETE;
+import retrofit2.http.Header;
 import retrofit2.http.PATCH;
 import retrofit2.http.PUT;
 import retrofit2.http.Query;
@@ -33,31 +34,31 @@ public interface ApiService {
     );
 
     @GET("enigma")
-    Call<ArrayList<UserResponseModel>> getUsers(
+    Call<ArrayList<UserResponseModel>> getUsers(@Header("Authorization") String token
     );
 
     @POST("/addChat")
-    Call<Chat> addChat(
+    Call<Chat> addChat(@Header("Authorization") String token
     );
 
     @PUT("/joinUser")
-    Call<Chat> joinUser(@Query("chatId") Integer chatId, @Query("userId") Integer userId);
+    Call<Chat> joinUser(@Query("chatId") Integer chatId, @Query("userId") Integer userId, @Header("Authorization") String token);
 
     @GET("/chats")
-    Call<ChatModel> getChatById(@Query("id") Integer id);
+    Call<ChatModel> getChatById(@Query("id") Integer id, @Header("Authorization") String token);
 
     @DELETE("/deleteChat")
-    Call<Void> deleteChat(@Query("id") Integer id);
+    Call<Void> deleteChat(@Query("id") Integer id, @Header("Authorization") String token);
 
     @DELETE("/deleteUserChats")
-    Call<Void> deleteUserChats(@Query("id") Integer id);
+    Call<Void> deleteUserChats(@Query("id") Integer id, @Header("Authorization") String token);
 
     @GET("enigma/getUserChats")
-    Call<ArrayList<ChatModel>> getUserChats(@Query("userId") Integer userId);
+    Call<ArrayList<ChatModel>> getUserChats(@Query("userId") Integer userId, @Header("Authorization") String token);
 
     @POST("enigma/signOutUser")
-    Call<UserResponseModel> signOutUser(@Query("id") Integer id);
+    Call<UserResponseModel> signOutUser(@Query("id") Integer id, @Header("Authorization") String token);
 
     @PATCH("enigma/setImage")
-    Call<UserResponseModel> setImage(@Query("id") Integer id, @Body ImageModel image);
+    Call<UserResponseModel> setImage(@Query("id") Integer id, @Body ImageModel image, @Header("Authorization") String token);
 }

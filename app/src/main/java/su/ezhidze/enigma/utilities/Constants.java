@@ -1,7 +1,5 @@
 package su.ezhidze.enigma.utilities;
 
-import java.util.HashMap;
-
 public class Constants {
     public static final String KEY_NAME = "name";
 
@@ -30,12 +28,6 @@ public class Constants {
     public static final String KEY_CHAT = "chat";
 
     public static final String KEY_CHATS = "chats";
-
-    public static final String REMOTE_MESSAGE_AUTHORIZATION = "Authorization";
-
-    public static final String REMOTE_MESSAGE_CONTENT_TYPE = "Content-Type";
-
-    public static HashMap<String, String> remoteMessageHeaders = null;
 
     public static final String[] TITLES = {"CHATS"};
 }

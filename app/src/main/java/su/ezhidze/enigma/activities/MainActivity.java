@@ -79,7 +79,7 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        Call<ArrayList<ChatModel>> chatCheckCall = apiService.getUserChats(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
+        Call<ArrayList<ChatModel>> chatCheckCall = apiService.getUserChats(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)), "Bearer " + preferenceManager.getString(Constants.KEY_TOKEN));
         chatCheckCall.enqueue(new Callback<ArrayList<ChatModel>>() {
             @Override
             public void onResponse(Call<ArrayList<ChatModel>> call, Response<ArrayList<ChatModel>> response) {
@@ -132,7 +132,7 @@ public class MainActivity extends BaseActivity {
                     return true;
                 } else if (id == R.id.signOut) {
                     if (NetworksHelper.isOnline(MainActivity.this)){
-                        Call<Void> chatsRemovalCall = apiService.deleteUserChats(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
+                        Call<Void> chatsRemovalCall = apiService.deleteUserChats(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)), "Bearer " + preferenceManager.getString(Constants.KEY_TOKEN));
                         chatsRemovalCall.enqueue(new Callback<Void>() {
                             @Override
                             public void onResponse(Call<Void> call, Response<Void> response) {
@@ -145,7 +145,7 @@ public class MainActivity extends BaseActivity {
                             }
                         });
 
-                        Call<UserResponseModel> signOutUserCall = apiService.signOutUser(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)));
+                        Call<UserResponseModel> signOutUserCall = apiService.signOutUser(Integer.valueOf(preferenceManager.getString(Constants.KEY_ID)), "Bearer " + preferenceManager.getString(Constants.KEY_TOKEN));
                         signOutUserCall.enqueue(new Callback<UserResponseModel>() {
                             @Override
                             public void onResponse(Call<UserResponseModel> call, Response<UserResponseModel> response) {
