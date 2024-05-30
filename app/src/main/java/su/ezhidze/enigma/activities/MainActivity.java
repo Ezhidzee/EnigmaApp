@@ -71,7 +71,7 @@ public class MainActivity extends BaseActivity {
 
         setToolbarMenu();
 
-        if (NetworksHelper.isOnline(this)) {
+        if (NetworksHelper.isOnline(this) && savedInstanceState == null) {
             WSService.connectStomp();
         }
     }
