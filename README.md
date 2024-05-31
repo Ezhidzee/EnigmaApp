@@ -11,6 +11,6 @@ Enigma is a messenger application that allows you to create end-to-end encrypted
 
 ### Video:
 
-[https://youtu.be/0seJ2sGhwW0](https://youtu.be/TkhprDZRF_U)
+[https://youtu.be/qpl924ETnuw](https://youtu.be/qpl924ETnuw)
 
-[![VIDEO](https://i.ytimg.com/vi/TkhprDZRF_U/hqdefault.jpg)](https://youtu.be/TkhprDZRF_U)
+[![VIDEO](https://i.ytimg.com/vi/qpl924ETnuw/hqdefault.jpg)](https://youtu.be/qpl924ETnuw)
